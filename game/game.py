@@ -19,7 +19,7 @@ class Game:
         self.all_sprites = pygame.sprite.Group()
 
         map_folder = path.join("e:\\PythonProjects\\Python-Game-2D\\scenes\\base_map")
-        self.map = TiledMap(path.join(map_folder, "2Dmap.tmx"))
+        self.map = TiledMap(path.join(map_folder, "main_map.tmx"))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
