@@ -9,27 +9,30 @@ class Player(pygame.sprite.Sprite):
         self.game = game
         self.image = self.walk_down[0]
         self.rect = self.image.get_rect() 
-        self.x = x
-        self.y = y
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
         self.width = 64
         self.height = 64
-        self.vel = 250
+        self.vel = PLAYER_SPEED
+        self.vx, self.vy = 0, 0
         self.idle_counter = 0
+        self.walking_counter = 0
         self.walking = False
 
         self.direction = "down"
 
     def load_assets(self):
-        self.walk_down = load_spritesheet("assets/player/main_char_default.png", 64, 64, 10, 1.8)
-        self.walk_up = load_spritesheet("assets/player/main_char_default.png", 64, 64, 8, 1.8)
-        self.walk_right = load_spritesheet("assets/player/main_char_default.png", 64, 64, 11, 1.8)
-        self.walk_left = load_spritesheet("assets/player/main_char_default.png", 64, 64, 9, 1.8)
+        self.walk_down = load_spritesheet("assets/player/main_char_default.png", 64, 64, 10, 1.6)
+        self.walk_up = load_spritesheet("assets/player/main_char_default.png", 64, 64, 8, 1.6)
+        self.walk_right = load_spritesheet("assets/player/main_char_default.png", 64, 64, 11, 1.6)
+        self.walk_left = load_spritesheet("assets/player/main_char_default.png", 64, 64, 9, 1.6)
+
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
 
     def move(self):
         keys = pygame.key.get_pressed()
-
+        
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.walking = True
             self.direction = "left"
@@ -54,25 +57,29 @@ class Player(pygame.sprite.Sprite):
         else:
             self.walking = False
 
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.center = (self.x, self.y)
 
 
     def update(self):
         self.move()
         self.idle_counter += 1
 
+        self.walking_counter = (self.walking_counter + 1) % 32  # cycle from 0 to 40
+
         if self.walking:
+            self.idle_counter = 0
+            frame = (self.walking_counter // 4) + 1  # get the current frame, now you have 10 images per direction
             if self.direction == "down":
-                self.image = self.walk_down[0]
+                self.image = self.walk_down[frame]
             elif self.direction == "up":
-                self.image = self.walk_up[0]
+                self.image = self.walk_up[frame]
             elif self.direction == "left":
-                self.image = self.walk_left[0]
+                self.image = self.walk_left[frame]
             elif self.direction == "right":
-                self.image = self.walk_right[0]
+                self.image = self.walk_right[frame]
 
         else:
+            self.walking_counter = 0
             if self.direction == "down":
                 if self.idle_counter % 60 < 30:
                     self.image = self.walk_down[0]
