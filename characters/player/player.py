@@ -12,11 +12,10 @@ class Player(pygame.sprite.Sprite):
         self.game = game
         self.image = self.walk_down[0]
         self.rect = self.image.get_rect() 
-
         self.x = x * 1 # multiply by 2 to scale the player same as the tilemap
         self.y = y * 1 # multiply by 2 to scale the player same as the tilemap
         self.hit_rect = PLAYER_HIT_RECT
-        self.hit_rect.center = self.rect.center
+        self.hit_rect.midbottom = self.rect.midbottom
         self.width = 64
         self.height = 64
         self.vel = PLAYER_SPEED
@@ -49,12 +48,12 @@ class Player(pygame.sprite.Sprite):
         if dir == 'y':
             hits = pygame.sprite.spritecollide(self, self.game.obstacles, False, collide_hit_rect)
             if hits:
-                if hits[0].rect.centery > self.hit_rect.centery:
-                    self.y = hits[0].rect.top - self.hit_rect.height / 2
-                if hits[0].rect.centery < self.hit_rect.centery:
-                    self.y = hits[0].rect.bottom + self.hit_rect.height / 2
+                if hits[0].rect.bottom > self.hit_rect.bottom:
+                    self.y = hits[0].rect.top 
+                if hits[0].rect.bottom < self.hit_rect.bottom:
+                    self.y = hits[0].rect.bottom + self.hit_rect.height 
                 self.vy = 0
-                self.rect.centery = self.y
+                self.rect.bottom = self.y
 
     def move(self):
         keys = pygame.key.get_pressed()
@@ -71,14 +70,14 @@ class Player(pygame.sprite.Sprite):
 
         # Move along the x axis and handle collisions
         self.x += vx
-        self.rect.center = (self.x, self.y)
-        self.hit_rect.center = self.rect.center
+        self.rect.midbottom = (self.x, self.y)
+        self.hit_rect.midbottom = self.rect.midbottom
         self.collide_with_obstacles('x')
 
         # Move along the y axis and handle collisions
         self.y += vy
-        self.rect.center = (self.x, self.y)
-        self.hit_rect.center = self.rect.center
+        self.rect.midbottom = (self.x, self.y)
+        self.hit_rect.midbottom = self.rect.midbottom
         self.collide_with_obstacles('y')
 
         if vx != 0 or vy != 0:
