@@ -1,16 +1,22 @@
 import pygame
 from game.settings import *
 from spritesheet import load_spritesheet
+from game.tilemap import *
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.load_assets()
         self.groups = game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
+        self.scale_factor = 1
         self.game = game
         self.image = self.walk_down[0]
         self.rect = self.image.get_rect() 
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
+
+        self.x = x * 1 # multiply by 2 to scale the player same as the tilemap
+        self.y = y * 1 # multiply by 2 to scale the player same as the tilemap
+        self.hit_rect = PLAYER_HIT_RECT
+        self.hit_rect.center = self.rect.center
         self.width = 64
         self.height = 64
         self.vel = PLAYER_SPEED
@@ -29,37 +35,66 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+        
+    def collide_with_obstacles(self, dir):
+        if dir == 'x':
+            hits = pygame.sprite.spritecollide(self, self.game.obstacles, False, collide_hit_rect)
+            if hits:
+                if hits[0].rect.centerx > self.hit_rect.centerx:
+                    self.x = hits[0].rect.left - self.hit_rect.width / 2
+                if hits[0].rect.centerx < self.hit_rect.centerx:
+                    self.x = hits[0].rect.right + self.hit_rect.width / 2
+                self.vx = 0
+                self.hit_rect.centerx = self.x
+        if dir == 'y':
+            hits = pygame.sprite.spritecollide(self, self.game.obstacles, False, collide_hit_rect)
+            if hits:
+                if hits[0].rect.centery > self.hit_rect.centery:
+                    self.y = hits[0].rect.top - self.hit_rect.height / 2
+                if hits[0].rect.centery < self.hit_rect.centery:
+                    self.y = hits[0].rect.bottom + self.hit_rect.height / 2
+                self.vy = 0
+                self.rect.centery = self.y
 
     def move(self):
         keys = pygame.key.get_pressed()
-        
+        vx, vy = 0, 0
+
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.walking = True
-            self.direction = "left"
-            self.x -= self.vel * self.game.dt
+            vx = -self.vel * self.game.dt
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            vx = self.vel * self.game.dt
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+            vy = -self.vel * self.game.dt
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            vy = self.vel * self.game.dt
 
-        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.walking = True
-            self.direction = "right"
-            self.x += self.vel * self.game.dt
+        # Move along the x axis and handle collisions
+        self.x += vx
+        self.rect.center = (self.x, self.y)
+        self.hit_rect.center = self.rect.center
+        self.collide_with_obstacles('x')
 
-        elif keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.walking = True
-            self.direction = "up"
-            self.y -= self.vel * self.game.dt
+        # Move along the y axis and handle collisions
+        self.y += vy
+        self.rect.center = (self.x, self.y)
+        self.hit_rect.center = self.rect.center
+        self.collide_with_obstacles('y')
 
-        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        if vx != 0 or vy != 0:
             self.walking = True
-            self.direction = "down"
-            self.y += self.vel * self.game.dt
-
-        
         else:
             self.walking = False
 
-        self.rect.center = (self.x, self.y)
-
-
+        if vx < 0:
+            self.direction = "left"
+        elif vx > 0:
+            self.direction = "right"
+        elif vy < 0:
+            self.direction = "up"
+        elif vy > 0:
+            self.direction = "down"
+            
     def update(self):
         self.move()
         self.idle_counter += 1
@@ -103,3 +138,5 @@ class Player(pygame.sprite.Sprite):
                     self.image = self.walk_right[0]
                 else:
                     self.image = self.walk_right[10]
+
+            

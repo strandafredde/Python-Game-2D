@@ -1,11 +1,24 @@
 from os import path
+import sys
 import pygame
 from .settings import *
 from characters.player.player import *
 from .tilemap import *
 
-# Initialize the game
+#sprite for collision
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, width, height):
+        print("obstacle created")
+        self.groups = game.obstacles
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.rect = pygame.Rect(x, y, width, height)
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y
 
+# Initialize the game
 class Game:
     def __init__(self):
         pygame.init()
@@ -17,14 +30,22 @@ class Game:
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
         self.all_sprites = pygame.sprite.Group()
+        self.obstacles = pygame.sprite.Group()
 
         map_folder = path.join("e:\\PythonProjects\\Python-Game-2D\\scenes\\base_map")
+
         self.map = TiledMap(path.join(map_folder, "main_map.tmx"))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
+        
 
-        self.player = Player(self, 130, 100)
+        for tile_object in self.map.tmxdata.objects:
+            if tile_object.name == "player":
+                self.player = Player(self, tile_object.x, tile_object.y)
+            if tile_object.name == "border":
+                Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
         self.camera = Camera(self.map.width, self.map.height)
+        self.draw_debug = False
 
     def run(self):
         # This is the main game loop. It continues to run as long as the game is active.
@@ -34,11 +55,17 @@ class Game:
             self.events()
             self.update()
             self.draw()
+    
+    def quit(self):
+        pygame.quit()
+        sys.exit()  
+
     def update(self):
         # This method updates the game state.
         # It could move game objects, check for collisions, update the score, etc.
         self.all_sprites.update()
         self.camera.update(self.player)
+
 
     def draw(self):
         # This method draws the game to the screen.
@@ -47,12 +74,24 @@ class Game:
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+            if self.draw_debug:
+                pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect ))
+        if self.draw_debug:
+            for obstacle in self.obstacles:
+                pygame.draw.rect(self.screen, RED, self.camera.apply_rect(obstacle.rect))
         pygame.display.flip()  # Update the display
-
+    
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.quit()
+                if event.key == pygame.K_h:
+                    self.draw_debug = not self.draw_debug
+
+
         # This method handles events.
         # It could handle input from the player, respond to game events, etc.
     

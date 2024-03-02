@@ -2,17 +2,20 @@ import pygame
 import pytmx
 from .settings import *
 
+def collide_hit_rect(one, two):
+    return one.hit_rect.colliderect(two.rect)
+
 class TiledMap():
     def __init__(self, filename):
         tm = pytmx.load_pygame(filename, pixelalpha=True)
-        self.scale_factor = 2  # Change this to zoom in or out
+        self.scale_factor = 1  # Change this to zoom in or out
         self.width = tm.width * tm.tilewidth * self.scale_factor
         self.height = tm.height * tm.tileheight * self.scale_factor
         self.tmxdata = tm
     
     def render(self, surface):
         ti = self.tmxdata.get_tile_image_by_gid # get image for certain tile
-        scale_factor = 2  # Change this to zoom in or out
+        scale_factor = 1  # Change this to zoom in or out
         for layer in self.tmxdata.visible_layers:  # loop through all visible layers
             if isinstance(layer, pytmx.TiledTileLayer):  # check if layer is a tile layer
                 print(layer.name)
@@ -32,7 +35,7 @@ class Camera:
         self.camera = pygame.Rect(0, 0, width, height)
         self.width = width
         self.height = height
-        self.scale_factor = 2
+        self.scale_factor = 1
 
     def apply(self, entity):
         return entity.rect.move(self.camera.topleft)
