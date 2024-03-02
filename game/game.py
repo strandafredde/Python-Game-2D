@@ -12,11 +12,11 @@ class Obstacle(pygame.sprite.Sprite):
         self.groups = game.obstacles
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.rect = pygame.Rect(x, y, width, height)
-        self.x = x
-        self.y = y
-        self.rect.x = x
-        self.rect.y = y
+        self.rect = pygame.Rect(x*2, y*2, width*2, height*2)
+        self.x = x * 2
+        self.y = y * 2
+        self.rect.x = self.x
+        self.rect.y = self.y
 
 # Initialize the game
 class Game:

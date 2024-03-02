@@ -12,8 +12,8 @@ class Player(pygame.sprite.Sprite):
         self.game = game
         self.image = self.walk_down[0]
         self.rect = self.image.get_rect() 
-        self.x = x * 1 # multiply by 2 to scale the player same as the tilemap
-        self.y = y * 1 # multiply by 2 to scale the player same as the tilemap
+        self.x = x * 2 # multiply by 2 to scale the player same as the tilemap
+        self.y = y * 2 # multiply by 2 to scale the player same as the tilemap
         self.hit_rect = PLAYER_HIT_RECT
         self.hit_rect.midbottom = self.rect.midbottom
         self.width = 64
@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.idle_counter = 0
         self.walking_counter = 0
         self.walking = False
-
+        self.frame_speed = 40
         self.direction = "down"
 
     def load_assets(self):
@@ -61,12 +61,19 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             vx = -self.vel * self.game.dt
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             vx = self.vel * self.game.dt
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
+        elif keys[pygame.K_UP] or keys[pygame.K_w]:
             vy = -self.vel * self.game.dt
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
             vy = self.vel * self.game.dt
+
+        if keys[pygame.K_LSHIFT]:
+            self.vel = PLAYER_SPEED * 2
+            self.frame_speed = 20
+        if not keys[pygame.K_LSHIFT]:
+            self.vel = PLAYER_SPEED
+            self.frame_speed = 40
 
         # Move along the x axis and handle collisions
         self.x += vx
@@ -98,7 +105,7 @@ class Player(pygame.sprite.Sprite):
         self.move()
         self.idle_counter += 1
 
-        self.walking_counter = (self.walking_counter + 1) % 32  # cycle from 0 to 40
+        self.walking_counter = (self.walking_counter + 1) % self.frame_speed  
 
         if self.walking:
             self.idle_counter = 0
