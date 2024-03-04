@@ -35,7 +35,11 @@ class Game:
         map_folder = path.join("e:\\PythonProjects\\Python-Game-2D\\scenes\\base_map")
 
         self.map = TiledMap(path.join(map_folder, "main_map.tmx"))
-        self.map_img = self.map.make_map()
+        self.map_img = self.map.make_map("base_layer")
+        self.map_img2 = self.map.make_map("detail_layer")
+        self.map_img3 = self.map.make_map("second_detail_layer")
+        self.map_img_last = self.map.make_map("walkbehind_layer")
+
         self.map_rect = self.map_img.get_rect()
         
 
@@ -72,13 +76,21 @@ class Game:
         # It could clear the screen, draw game objects, draw the UI, etc.
 
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
+        self.screen.blit(self.map_img2, self.camera.apply_rect(self.map_rect))
+        self.screen.blit(self.map_img3, self.camera.apply_rect(self.map_rect))
+
+
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
             if self.draw_debug:
                 pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect ))
+
+        self.screen.blit(self.map_img_last, self.camera.apply_rect(self.map_rect))
+
         if self.draw_debug:
             for obstacle in self.obstacles:
                 pygame.draw.rect(self.screen, RED, self.camera.apply_rect(obstacle.rect))
+
         pygame.display.flip()  # Update the display
     
     def events(self):

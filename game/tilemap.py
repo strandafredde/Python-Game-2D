@@ -13,21 +13,22 @@ class TiledMap():
         self.height = tm.height * tm.tileheight * self.scale_factor
         self.tmxdata = tm
     
-    def render(self, surface):
+    def render(self, surface, layer_name=None):
         ti = self.tmxdata.get_tile_image_by_gid # get image for certain tile
         scale_factor = 2  # Change this to zoom in or out
         for layer in self.tmxdata.visible_layers:  # loop through all visible layers
             if isinstance(layer, pytmx.TiledTileLayer):  # check if layer is a tile layer
-                print(layer.name)
-                for x, y, gid in layer:  # loop through all tiles in the layer
-                    tile = ti(gid)  # get the image for the tile 
-                    if tile:  # if the tile exists draw it
-                        tile = pygame.transform.scale(tile, (self.tmxdata.tilewidth * scale_factor, self.tmxdata.tileheight * scale_factor))
-                        surface.blit(tile, (x * self.tmxdata.tilewidth * scale_factor, y * self.tmxdata.tileheight * scale_factor))
+                if layer_name is None or layer.name == layer_name:
+                    print(layer.name)
+                    for x, y, gid in layer:  # loop through all tiles in the layer
+                        tile = ti(gid)  # get the image for the tile 
+                        if tile:  # if the tile exists draw it
+                            tile = pygame.transform.scale(tile, (self.tmxdata.tilewidth * scale_factor, self.tmxdata.tileheight * scale_factor))
+                            surface.blit(tile, (x * self.tmxdata.tilewidth * scale_factor, y * self.tmxdata.tileheight * scale_factor))
     
-    def make_map(self):
-        temp_surface = pygame.Surface((self.width, self.height)) # create a temporary surface 
-        self.render(temp_surface) # render the map to the temporary surface
+    def make_map(self, layer_name=None):
+        temp_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA) # create a temporary surface 
+        self.render(temp_surface, layer_name) # render the map to the temporary surface
         return temp_surface
     
 class Camera:
