@@ -100,7 +100,7 @@ class Player(pygame.sprite.Sprite):
             self.direction = "up"
         elif vy > 0:
             self.direction = "down"
-            
+                
     def update(self):
         self.move()
         self.idle_counter += 1

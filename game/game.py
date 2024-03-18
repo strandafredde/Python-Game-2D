@@ -8,8 +8,20 @@ from .tilemap import *
 #sprite for collision
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, game, x, y, width, height):
-        print("obstacle created")
         self.groups = game.obstacles
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.rect = pygame.Rect(x*2, y*2, width*2, height*2)
+        self.x = x * 2
+        self.y = y * 2
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
+
+class Door(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, width, height):
+        self.groups = game.doors
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.rect = pygame.Rect(x*2, y*2, width*2, height*2)
@@ -25,12 +37,14 @@ class Game:
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
-
+        self.tp_x = 0
+        self.tp_y = 0
 
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
         self.all_sprites = pygame.sprite.Group()
         self.obstacles = pygame.sprite.Group()
+        self.doors = pygame.sprite.Group()
 
         map_folder = path.join("e:\\PythonProjects\\Python-Game-2D\\scenes\\base_map")
 
@@ -48,6 +62,12 @@ class Game:
                 self.player = Player(self, tile_object.x, tile_object.y)
             if tile_object.name == "border":
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+            if tile_object.name == "rv_door":
+                Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+            if tile_object.name == "rv_door_inside":
+                self.tp_x = tile_object.x
+                self.tp_y = tile_object.y
+
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
 
@@ -65,10 +85,21 @@ class Game:
         sys.exit()  
 
     def update(self):
-        # This method updates the game state.
-        # It could move game objects, check for collisions, update the score, etc.
+        # This method updates the game. It could be used to update counters, check for collisions, etc.
         self.all_sprites.update()
         self.camera.update(self.player)
+        collided_sprites = pygame.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
+        if collided_sprites:
+            print(f"Collided with sprite")
+            print(f"Teleporting player from ({self.player.rect.x}, {self.player.rect.y}) to ({self.tp_x}, {self.tp_y})")           
+            self.player.x = self.tp_x * 2
+            self.player.y = self.tp_y * 2
+            
+            print(f"Player teleported to ({self.player.rect.x}, {self.player.rect.y})")
+
+    
+
+       
 
 
     def draw(self):
@@ -90,6 +121,9 @@ class Game:
         if self.draw_debug:
             for obstacle in self.obstacles:
                 pygame.draw.rect(self.screen, RED, self.camera.apply_rect(obstacle.rect))
+            
+            for door in self.doors:
+                pygame.draw.rect(self.screen, GREEN, self.camera.apply_rect(door.rect))
 
         pygame.display.flip()  # Update the display
     

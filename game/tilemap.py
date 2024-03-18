@@ -5,6 +5,8 @@ from .settings import *
 def collide_hit_rect(one, two):
     return one.hit_rect.colliderect(two.rect)
 
+
+#Load a tilemap and render a chosen layer
 class TiledMap():
     def __init__(self, filename):
         tm = pytmx.load_pygame(filename, pixelalpha=True)
@@ -30,7 +32,9 @@ class TiledMap():
         temp_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA) # create a temporary surface 
         self.render(temp_surface, layer_name) # render the map to the temporary surface
         return temp_surface
-    
+
+
+#Camera class to follow the player
 class Camera:
     def __init__(self, width, height):
         self.camera = pygame.Rect(0, 0, width, height)
