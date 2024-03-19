@@ -20,7 +20,7 @@ class Obstacle(pygame.sprite.Sprite):
 
 
 class Door(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, width, height):
+    def __init__(self, game, x, y, width, height, tp_x, tp_y):
         self.groups = game.doors
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -29,6 +29,8 @@ class Door(pygame.sprite.Sprite):
         self.y = y * 2
         self.rect.x = self.x
         self.rect.y = self.y
+        self.tp_x = tp_x * 2
+        self.tp_y = tp_y * 2
 
 # Initialize the game
 class Game:
@@ -37,8 +39,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
-        self.tp_x = 0
-        self.tp_y = 0
+        self.tp_x_rv_inside = 0
+        self.tp_y_rv_inside = 0
 
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
@@ -63,10 +65,17 @@ class Game:
             if tile_object.name == "border":
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
             if tile_object.name == "rv_door":
-                Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
-            if tile_object.name == "rv_door_inside":
-                self.tp_x = tile_object.x
-                self.tp_y = tile_object.y
+                tp_x = 0  # Default teleportation coordinates
+                tp_y = 0
+                for tp_object in self.map.tmxdata.objects:
+                    if tp_object.name == "rv_door_inside":
+                        tp_x = tp_object.x
+                        tp_y = tp_object.y
+                        #door to exit the rv
+                        Door(self, tp_object.x, tp_object.y, tp_object.width, tp_object.height , tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height + 25)
+                        break
+                #door to enter the rv
+                Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, tp_x + 15, tp_y)
 
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
@@ -88,13 +97,12 @@ class Game:
         # This method updates the game. It could be used to update counters, check for collisions, etc.
         self.all_sprites.update()
         self.camera.update(self.player)
-        collided_sprites = pygame.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
-        if collided_sprites:
-            print(f"Collided with sprite")
-            print(f"Teleporting player from ({self.player.rect.x}, {self.player.rect.y}) to ({self.tp_x}, {self.tp_y})")           
-            self.player.x = self.tp_x * 2
-            self.player.y = self.tp_y * 2
-            
+        enter_doors = pygame.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
+        for door in enter_doors:  # Iterate over all collided doors
+            print(f"Collided with door")
+            print(f"Teleporting player from ({self.player.rect.x}, {self.player.rect.y}) to ({door.tp_x}, {door.tp_y})")           
+            self.player.x = door.tp_x
+            self.player.y = door.tp_y
             print(f"Player teleported to ({self.player.rect.x}, {self.player.rect.y})")
 
     
