@@ -39,8 +39,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
-        self.tp_x_rv_inside = 0
-        self.tp_y_rv_inside = 0
+        self.fade_active = False
 
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
@@ -75,7 +74,20 @@ class Game:
                         Door(self, tp_object.x, tp_object.y, tp_object.width, tp_object.height , tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height + 25)
                         break
                 #door to enter the rv
-                Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, tp_x + 15, tp_y)
+                Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, tp_x + tp_object.width/2, tp_y)
+
+            if tile_object.name == "start_door":
+                tp_x = 0  # Default teleportation coordinates
+                tp_y = 0
+                for tp_object in self.map.tmxdata.objects:
+                    if tp_object.name == "start_door_inside":
+                        tp_x = tp_object.x
+                        tp_y = tp_object.y
+                        #door to exit the rv
+                        Door(self, tp_object.x, tp_object.y, tp_object.width, tp_object.height , tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height + 25)
+                        break
+                #door to enter the rv
+                Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, tp_x + tp_object.width/2, tp_y)
 
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
@@ -103,13 +115,24 @@ class Game:
             print(f"Teleporting player from ({self.player.rect.x}, {self.player.rect.y}) to ({door.tp_x}, {door.tp_y})")           
             self.player.x = door.tp_x
             self.player.y = door.tp_y
+            self.fade(WIDTH, HEIGHT)
             print(f"Player teleported to ({self.player.rect.x}, {self.player.rect.y})")
 
     
 
        
-
-
+    def fade(self, width, height): 
+        self.fade_active = True
+        fade = pygame.Surface((width, height))
+        fade.fill((0,0,0))
+        for alpha in range(0, 300):
+            fade.set_alpha(alpha)
+            #self.draw()
+            self.screen.blit(fade, (0,0))
+            pygame.display.update()
+            pygame.time.delay(3)
+            
+        self.fade_active = False
     def draw(self):
         # This method draws the game to the screen.
         # It could clear the screen, draw game objects, draw the UI, etc.
@@ -148,9 +171,3 @@ class Game:
 
         # This method handles events.
         # It could handle input from the player, respond to game events, etc.
-    
-
-
-
-
-

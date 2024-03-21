@@ -25,7 +25,8 @@ class Player(pygame.sprite.Sprite):
         self.walking = False
         self.frame_speed = 40
         self.direction = "down"
-
+        self.teleporting = False
+        
     def load_assets(self):
         self.walk_down = load_spritesheet("assets/player/main_char_default.png", 64, 64, 10, 1.6)
         self.walk_up = load_spritesheet("assets/player/main_char_default.png", 64, 64, 8, 1.6)
@@ -75,17 +76,18 @@ class Player(pygame.sprite.Sprite):
             self.vel = PLAYER_SPEED
             self.frame_speed = 40
 
-        # Move along the x axis and handle collisions
-        self.x += vx
-        self.rect.midbottom = (self.x, self.y)
-        self.hit_rect.midbottom = self.rect.midbottom
-        self.collide_with_obstacles('x')
+        if not self.game.fade_active:  # Only update position if a fade is not active
+            # Move along the x axis and handle collisions
+            self.x += vx
+            self.rect.midbottom = (self.x, self.y)
+            self.hit_rect.midbottom = self.rect.midbottom
+            self.collide_with_obstacles('x')
 
-        # Move along the y axis and handle collisions
-        self.y += vy
-        self.rect.midbottom = (self.x, self.y)
-        self.hit_rect.midbottom = self.rect.midbottom
-        self.collide_with_obstacles('y')
+            # Move along the y axis and handle collisions
+            self.y += vy
+            self.rect.midbottom = (self.x, self.y)
+            self.hit_rect.midbottom = self.rect.midbottom
+            self.collide_with_obstacles('y')
 
         if vx != 0 or vy != 0:
             self.walking = True
