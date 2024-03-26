@@ -57,94 +57,98 @@ class Player(pygame.sprite.Sprite):
                 self.rect.bottom = self.y
 
     def move(self):
-        keys = pygame.key.get_pressed()
-        vx, vy = 0, 0
+        if not self.game.fade_active:
 
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            vx = -self.vel * self.game.dt
-        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            vx = self.vel * self.game.dt
-        elif keys[pygame.K_UP] or keys[pygame.K_w]:
-            vy = -self.vel * self.game.dt
-        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            vy = self.vel * self.game.dt
+            keys = pygame.key.get_pressed()
+            vx, vy = 0, 0
 
-        if keys[pygame.K_LSHIFT]:
-            self.vel = PLAYER_SPEED * 2
-            self.frame_speed = 20
-        if not keys[pygame.K_LSHIFT]:
-            self.vel = PLAYER_SPEED
-            self.frame_speed = 40
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                vx = -self.vel * self.game.dt
+            elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                vx = self.vel * self.game.dt
+            elif keys[pygame.K_UP] or keys[pygame.K_w]:
+                vy = -self.vel * self.game.dt
+            elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                vy = self.vel * self.game.dt
 
-        if not self.game.fade_active:  # Only update position if a fade is not active
-            # Move along the x axis and handle collisions
-            self.x += vx
-            self.rect.midbottom = (self.x, self.y)
-            self.hit_rect.midbottom = self.rect.midbottom
-            self.collide_with_obstacles('x')
+            if keys[pygame.K_LSHIFT]:
+                self.vel = PLAYER_SPEED * 2
+                self.frame_speed = 20
+            if not keys[pygame.K_LSHIFT]:
+                self.vel = PLAYER_SPEED
+                self.frame_speed = 40
 
-            # Move along the y axis and handle collisions
-            self.y += vy
-            self.rect.midbottom = (self.x, self.y)
-            self.hit_rect.midbottom = self.rect.midbottom
-            self.collide_with_obstacles('y')
+            if not self.game.fade_active:  # Only update position if a fade is not active
+                # Move along the x axis and handle collisions
+                self.x += vx
+                self.rect.midbottom = (self.x, self.y)
+                self.hit_rect.midbottom = self.rect.midbottom
+                self.collide_with_obstacles('x')
 
-        if vx != 0 or vy != 0:
-            self.walking = True
-        else:
-            self.walking = False
+                # Move along the y axis and handle collisions
+                self.y += vy
+                self.rect.midbottom = (self.x, self.y)
+                self.hit_rect.midbottom = self.rect.midbottom
+                self.collide_with_obstacles('y')
 
-        if vx < 0:
-            self.direction = "left"
-        elif vx > 0:
-            self.direction = "right"
-        elif vy < 0:
-            self.direction = "up"
-        elif vy > 0:
-            self.direction = "down"
-                
+            if vx != 0 or vy != 0:
+                self.walking = True
+            else:
+                self.walking = False
+
+            if vx < 0:
+                self.direction = "left"
+            elif vx > 0:
+                self.direction = "right"
+            elif vy < 0:
+                self.direction = "up"
+            elif vy > 0:
+                self.direction = "down"
+                    
     def update(self):
-        self.move()
-        self.idle_counter += 1
+        if not self.game.fade_active:
 
-        self.walking_counter = (self.walking_counter + 1) % self.frame_speed  
+            self.move()
+            self.idle_counter += 1
 
-        if self.walking:
-            self.idle_counter = 0
-            frame = (self.walking_counter // 4) + 1  # get the current frame, now you have 10 images per direction
-            if self.direction == "down":
-                self.image = self.walk_down[frame]
-            elif self.direction == "up":
-                self.image = self.walk_up[frame]
-            elif self.direction == "left":
-                self.image = self.walk_left[frame]
-            elif self.direction == "right":
-                self.image = self.walk_right[frame]
+            self.walking_counter = (self.walking_counter + 1) % self.frame_speed  
 
-        else:
-            self.walking_counter = 0
-            if self.direction == "down":
-                if self.idle_counter % 60 < 30:
-                    self.image = self.walk_down[0]
-                else:
-                    self.image = self.walk_down[10]
-            
-            elif self.direction == "up":
-                if self.idle_counter % 60 < 30:
-                    self.image = self.walk_up[0]
-                else:
-                    self.image = self.walk_up[10]
-            
-            elif self.direction == "left":
-                if self.idle_counter % 60 < 30:
-                    self.image = self.walk_left[0]
-                else:
-                    self.image = self.walk_left[10]
-            
-            elif self.direction == "right":
-                if self.idle_counter % 60 < 30:
-                    self.image = self.walk_right[0]
-                else:
-                    self.image = self.walk_right[10]
+            if self.walking:
+                self.idle_counter = 0
+                frame = (self.walking_counter // 4) + 1  # get the current frame, now you have 10 images per direction
+                if self.direction == "down":
+                    self.image = self.walk_down[frame]
+                elif self.direction == "up":
+                    self.image = self.walk_up[frame]
+                elif self.direction == "left":
+                    self.image = self.walk_left[frame]
+                elif self.direction == "right":
+                    self.image = self.walk_right[frame]
 
-            
+            else:
+                self.walking_counter = 0
+                if self.direction == "down":
+                    if self.idle_counter % 60 < 30:
+                        self.image = self.walk_down[0]
+                    else:
+                        self.image = self.walk_down[10]
+                
+                elif self.direction == "up":
+                    if self.idle_counter % 60 < 30:
+                        self.image = self.walk_up[0]
+                    else:
+                        self.image = self.walk_up[10]
+                
+                elif self.direction == "left":
+                    if self.idle_counter % 60 < 30:
+                        self.image = self.walk_left[0]
+                    else:
+                        self.image = self.walk_left[10]
+                
+                elif self.direction == "right":
+                    if self.idle_counter % 60 < 30:
+                        self.image = self.walk_right[0]
+                    else:
+                        self.image = self.walk_right[10]
+
+                

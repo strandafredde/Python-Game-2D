@@ -16,7 +16,7 @@ class Obstacle(pygame.sprite.Sprite):
         self.y = y * 2
         self.rect.x = self.x
         self.rect.y = self.y
-
+        pygame.DOUBLEBUF = True
 
 
 class Door(pygame.sprite.Sprite):
@@ -39,7 +39,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
-        self.fade_active = False
+        self.fade_active = False 
+        self.fade_alpha = 0
 
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
@@ -99,11 +100,27 @@ class Game:
             self.dt = self.clock.tick(FPS) / 1000 
             self.events()
             self.update()
+            
             self.draw()
-    
+           
     def quit(self):
         pygame.quit()
         sys.exit()  
+
+    # def fade_out(self):
+    #     self.fade_active = True 
+    #     fade_surface = pygame.Surface((WIDTH, HEIGHT))
+    #     fade_surface.fill((0, 0, 0))  # Fill with black color
+    #     for alpha in range(0, 255):
+    #         fade_surface.set_alpha(alpha)
+    #         self.screen.blit(fade_surface, (0, 0))
+    #         pygame.display.update()
+    #         self.clock.tick(170)  # Delay to slow down the fade effect
+
+    #     self.fade_active = False
+
+
+
 
     def update(self):
         # This method updates the game. It could be used to update counters, check for collisions, etc.
@@ -111,28 +128,31 @@ class Game:
         self.camera.update(self.player)
         enter_doors = pygame.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
         for door in enter_doors:  # Iterate over all collided doors
-            print(f"Collided with door")
-            print(f"Teleporting player from ({self.player.rect.x}, {self.player.rect.y}) to ({door.tp_x}, {door.tp_y})")           
+            #print(f"Collided with door")
+            #print(f"Teleporting player from ({self.player.rect.x}, {self.player.rect.y}) to ({door.tp_x}, {door.tp_y})")           
+           
+            self.fade_active = True
             self.player.x = door.tp_x
             self.player.y = door.tp_y
-            self.fade(WIDTH, HEIGHT)
-            print(f"Player teleported to ({self.player.rect.x}, {self.player.rect.y})")
+            
+            #print(f"Player teleported to ({self.player.rect.x}, {self.player.rect.y})")
 
     
 
        
-    def fade(self, width, height): 
-        self.fade_active = True
-        fade = pygame.Surface((width, height))
-        fade.fill((0,0,0))
-        for alpha in range(0, 300):
-            fade.set_alpha(alpha)
-            #self.draw()
-            self.screen.blit(fade, (0,0))
-            pygame.display.update()
-            pygame.time.delay(3)
-            
-        self.fade_active = False
+    def fade_out(self):
+        print("Fading out")
+        fade_surface = pygame.Surface((WIDTH, HEIGHT))
+        fade_surface.fill((0, 0, 0))  # Fill with black color
+        fade_surface.set_alpha(self.fade_alpha)
+        self.screen.blit(fade_surface, (0, 0))
+        self.fade_alpha += 5  # Increase the alpha value to make the fade effect progress'
+        print("Alpha:", self.fade_alpha)
+        if self.fade_alpha >= 255:
+            print("Alpha:", self.fade_alpha)
+            self.fade_active = False
+            self.fade_alpha = 0  # Reset the alpha value for the next fade effect
+        
     def draw(self):
         # This method draws the game to the screen.
         # It could clear the screen, draw game objects, draw the UI, etc.
@@ -156,8 +176,14 @@ class Game:
             for door in self.doors:
                 pygame.draw.rect(self.screen, GREEN, self.camera.apply_rect(door.rect))
 
+        if self.fade_active:
+            self.fade_out()
+
         pygame.display.flip()  # Update the display
-    
+
+
+
+
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -167,6 +193,11 @@ class Game:
                     self.quit()
                 if event.key == pygame.K_h:
                     self.draw_debug = not self.draw_debug
+                if event.key == pygame.K_f:
+                    print(self.fade_active)
+                    self.fade_active = True
+                    print(self.fade_active)
+
 
 
         # This method handles events.
