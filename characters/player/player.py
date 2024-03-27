@@ -6,7 +6,7 @@ from game.tilemap import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.load_assets()
-        self.groups = game.all_sprites
+        self.groups =  game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.scale_factor = 1
         self.game = game

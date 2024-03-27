@@ -3,6 +3,8 @@ import sys
 import pygame
 from .settings import *
 from characters.player.player import *
+from characters.npc.arthur import *
+
 from .tilemap import *
 
 #sprite for collision
@@ -16,7 +18,6 @@ class Obstacle(pygame.sprite.Sprite):
         self.y = y * 2
         self.rect.x = self.x
         self.rect.y = self.y
-        pygame.DOUBLEBUF = True
 
 
 class Door(pygame.sprite.Sprite):
@@ -41,10 +42,25 @@ class Game:
         self.running = True
         self.fade_active = False 
         self.fade_alpha = 0
+        self.door_opened = False
+
+
+    def load_data(self):
+        # Load all game data. This method is called when the game is started.
+        try:
+            self.open_door = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\door_open.wav")
+            self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\littleroot_town_music.wav")
+            print("Game data loaded successfully")
+        except:
+            print("Cannot load game data")
+
 
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
+        self.load_data()
+
         self.all_sprites = pygame.sprite.Group()
+        self.npcs = pygame.sprite.Group()
         self.obstacles = pygame.sprite.Group()
         self.doors = pygame.sprite.Group()
 
@@ -60,6 +76,8 @@ class Game:
         
 
         for tile_object in self.map.tmxdata.objects:
+            if tile_object.name == "arthur":
+                self.arthur = Arthur(self, tile_object.x, tile_object.y)
             if tile_object.name == "player":
                 self.player = Player(self, tile_object.x, tile_object.y)
             if tile_object.name == "border":
@@ -90,8 +108,25 @@ class Game:
                 #door to enter the rv
                 Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, tp_x + tp_object.width/2, tp_y)
 
+
+            if tile_object.name == "second_door_outside":
+                tp_x = 0  # Default teleportation coordinates
+                tp_y = 0
+                for tp_object in self.map.tmxdata.objects:
+                    if tp_object.name == "second_door_inside":
+                        tp_x = tp_object.x
+                        tp_y = tp_object.y
+                        #door to exit the rv
+                        Door(self, tp_object.x, tp_object.y, tp_object.width, tp_object.height , tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height + 25)
+                        break
+                #door to enter the rv
+                Door(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height, tp_x + tp_object.width/2, tp_y)
+
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
+
+        self.town_music.set_volume(0.01)
+        self.town_music.play(loops=-1)
 
     def run(self):
         # This is the main game loop. It continues to run as long as the game is active.
@@ -107,34 +142,26 @@ class Game:
         pygame.quit()
         sys.exit()  
 
-    # def fade_out(self):
-    #     self.fade_active = True 
-    #     fade_surface = pygame.Surface((WIDTH, HEIGHT))
-    #     fade_surface.fill((0, 0, 0))  # Fill with black color
-    #     for alpha in range(0, 255):
-    #         fade_surface.set_alpha(alpha)
-    #         self.screen.blit(fade_surface, (0, 0))
-    #         pygame.display.update()
-    #         self.clock.tick(170)  # Delay to slow down the fade effect
-
-    #     self.fade_active = False
-
-
-
-
     def update(self):
         # This method updates the game. It could be used to update counters, check for collisions, etc.
+        
+        self.npcs.update()
         self.all_sprites.update()
         self.camera.update(self.player)
         enter_doors = pygame.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
         for door in enter_doors:  # Iterate over all collided doors
-            #print(f"Collided with door")
-            #print(f"Teleporting player from ({self.player.rect.x}, {self.player.rect.y}) to ({door.tp_x}, {door.tp_y})")           
-           
+            print("Player collided with door")
+            if not self.door_opened:
+                self.open_door.set_volume(0.015)
+                self.open_door.play(loops=0)
+                self.door_opened = True
+            
             self.fade_active = True
             self.player.x = door.tp_x
             self.player.y = door.tp_y
-            
+        
+        if not enter_doors:
+            self.door_opened = False
             #print(f"Player teleported to ({self.player.rect.x}, {self.player.rect.y})")
 
     
@@ -160,6 +187,9 @@ class Game:
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
         self.screen.blit(self.map_img2, self.camera.apply_rect(self.map_rect))
         self.screen.blit(self.map_img3, self.camera.apply_rect(self.map_rect))
+
+        for sprite in self.npcs:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
 
 
         for sprite in self.all_sprites:
