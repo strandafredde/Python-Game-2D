@@ -4,6 +4,7 @@ import pygame
 from .settings import *
 from characters.player.player import *
 from characters.npc.arthur import *
+from characters.npc.walter import *
 
 from .tilemap import *
 
@@ -36,6 +37,7 @@ class Door(pygame.sprite.Sprite):
 def text_box(self, text):
     padding = 20  # Space from the sides and the bottom
     text_padding = 10  # Space from the text to the text box
+    line_spacing = 5  # Space between lines
 
     # Create a Surface for the text box
     text_box = pygame.Surface((WIDTH - 2 * padding, 100), pygame.SRCALPHA)  # Use SRCALPHA to allow transparent background
@@ -50,20 +52,34 @@ def text_box(self, text):
     pygame.draw.rect(text_box, WHITE, inner_rect, 0, border_radius=10)
 
     # Create a font object
-    font = pygame.font.Font('freesansbold.ttf', 25)  
+    font = pygame.font.Font('freesansbold.ttf', 20)
 
-    # Render the text onto a new Surface
-    text_surface = font.render(text, True, BLACK)  
+    # Split the text into words
+    words = text.split(' ')
+    lines = ['']
+    line_index = 0
 
-    # Calculate the position of the text (top corner of the left side of the text box)
-    text_rect = text_surface.get_rect(left=text_padding, top=text_padding)
+    # Add words to lines
+    for word in words:
+        if lines[line_index]:  # If the current line is not empty, add a space before the word
+            temp_line = lines[line_index] + ' ' + word
+        else:  # If the current line is empty, add the word without a space
+            temp_line = lines[line_index] + word
+        temp_surface = font.render(temp_line, True, BLACK)
+        if temp_surface.get_width() <= text_box.get_width() - 2 * text_padding:
+            lines[line_index] = temp_line
+        else:
+            lines.append(word)
+            line_index += 1
 
-    # Blit the text Surface onto the text box Surface
-    text_box.blit(text_surface, text_rect)
+    # Render the lines and blit them onto the text box Surface
+    for i, line in enumerate(lines):
+        text_surface = font.render(line, True, BLACK)
+        text_rect = text_surface.get_rect(left=text_padding, top=text_padding + i * (font.get_height() + line_spacing))
+        text_box.blit(text_surface, text_rect)
 
     # Blit the text box Surface onto the screen with space from the sides and the bottom
-    self.screen.blit(text_box, (padding, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom
-# Initialize the game
+    self.screen.blit(text_box, (padding, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom# Initialize the game
 class Game:
     def __init__(self):
         pygame.init()
@@ -74,6 +90,7 @@ class Game:
         self.fade_alpha = 0
         self.door_opened = False
         self.talking_arthur = False
+        self.talking_walter = False
 
 
     def load_data(self):
@@ -109,10 +126,13 @@ class Game:
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == "arthur":
                 self.arthur = Arthur(self, tile_object.x, tile_object.y)
+            if tile_object.name == "walter":
+                self.walter = Walter(self, tile_object.x, tile_object.y)
             if tile_object.name == "player":
                 self.player = Player(self, tile_object.x, tile_object.y)
             if tile_object.name == "border":
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+
             if tile_object.name == "rv_door":
                 tp_x = 0  # Default teleportation coordinates
                 tp_y = 0
@@ -156,8 +176,8 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
 
-        self.town_music.set_volume(VOLUME)
-        self.town_music.play(loops=-1)
+        #self.town_music.set_volume(VOLUME)
+        #self.town_music.play(loops=-1)
 
     def run(self):
         # This is the main game loop. It continues to run as long as the game is active.
@@ -166,7 +186,6 @@ class Game:
             self.dt = self.clock.tick(FPS) / 1000 
             self.events()
             self.update()
-            
             self.draw()
            
     def quit(self):
@@ -196,14 +215,23 @@ class Game:
             
 
         
-        talk_to_arthur = pygame.sprite.spritecollide(self.player, self.npcs, False, collide_hit_rect)
-        if talk_to_arthur:
+        talk_to_npc = pygame.sprite.spritecollide(self.player, self.npcs, False, collide_hit_rect)
+        for npc in talk_to_npc:
             if self.player.direction == "up":
-                self.near_arthur = True
+                if npc == self.arthur:
+                    self.near_arthur = True
+                if npc == self.walter:
+                    self.near_walter = True
 
-        if not talk_to_arthur:
+        if not talk_to_npc:
             self.near_arthur = False
             self.talking_arthur = False
+
+            self.talking_walter = False
+            self.near_walter = False
+
+
+            
 
     def fade_out(self):
         print("Fading out")
@@ -252,7 +280,10 @@ class Game:
         if self.talking_arthur and self.player.direction == "up":
             print("Arthur: Hello, I'm Arthur")
             text_box(self, "Hey there Mister I'm Arthur!")
-            
+        
+        if self.talking_walter and self.player.direction == "up":
+            print("Walter: Hello, I'm Walter")
+            text_box(self, "My name is walter hartwell white. i live at 308 negra arroyo lane, albuquerque, new mexico. 87104 and we need to cook")
         pygame.display.flip()  # Update the display
 
 
@@ -272,6 +303,11 @@ class Game:
                         print("Arthur: Hello, I'm Arthur")
                         self.talking_arthur = not self.talking_arthur
                         print(self.talking_arthur)
+                    
+                    if self.near_walter:
+                        print("Walter: Hello, I'm Walter")
+                        self.talking_walter = not self.talking_walter
+                        print(self.talking_walter)
 
 
 
