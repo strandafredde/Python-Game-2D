@@ -13,7 +13,7 @@ class Arthur(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = x * 2
         self.y = y * 2
-        self.rect.bottomleft = (self.x, self.y)
+        self.rect.midbottom= (self.x, self.y)
         self.width = 40
         self.height = 64
     

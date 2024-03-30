@@ -8,6 +8,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 CYAN = (0, 255, 255)
+GREY = (128, 128, 128)
+BROWN = (60, 25, 0)
 
 
 FPS = 60
@@ -15,5 +17,8 @@ HEIGHT = 768
 WIDTH = 1024
 TILESIZE = 32
 PLAYER_SPEED = 225
+
+
+VOLUME = 0.01
 
 PLAYER_HIT_RECT = pygame.Rect(0, 0, 48, 48)

@@ -33,6 +33,36 @@ class Door(pygame.sprite.Sprite):
         self.tp_x = tp_x * 2
         self.tp_y = tp_y * 2
 
+def text_box(self, text):
+    padding = 20  # Space from the sides and the bottom
+    text_padding = 10  # Space from the text to the text box
+
+    # Create a Surface for the text box
+    text_box = pygame.Surface((WIDTH - 2 * padding, 100), pygame.SRCALPHA)  # Use SRCALPHA to allow transparent background
+    text_box.fill((0, 0, 0, 0))  # Fill the text box with transparent color
+
+    # Create a rounded border for the text box
+    border = pygame.Rect(0, 0, WIDTH - 2 * padding, 100)
+    pygame.draw.rect(text_box, BROWN, border, 0, border_radius=10)
+
+    # Create a smaller rounded rectangle for the inner part of the text box
+    inner_rect = pygame.Rect(2, 2, WIDTH - 2 * padding - 4, 96)
+    pygame.draw.rect(text_box, WHITE, inner_rect, 0, border_radius=10)
+
+    # Create a font object
+    font = pygame.font.Font('freesansbold.ttf', 25)  
+
+    # Render the text onto a new Surface
+    text_surface = font.render(text, True, BLACK)  
+
+    # Calculate the position of the text (top corner of the left side of the text box)
+    text_rect = text_surface.get_rect(left=text_padding, top=text_padding)
+
+    # Blit the text Surface onto the text box Surface
+    text_box.blit(text_surface, text_rect)
+
+    # Blit the text box Surface onto the screen with space from the sides and the bottom
+    self.screen.blit(text_box, (padding, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom
 # Initialize the game
 class Game:
     def __init__(self):
@@ -43,6 +73,7 @@ class Game:
         self.fade_active = False 
         self.fade_alpha = 0
         self.door_opened = False
+        self.talking_arthur = False
 
 
     def load_data(self):
@@ -125,7 +156,7 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
 
-        self.town_music.set_volume(0.01)
+        self.town_music.set_volume(VOLUME)
         self.town_music.play(loops=-1)
 
     def run(self):
@@ -152,7 +183,7 @@ class Game:
         for door in enter_doors:  # Iterate over all collided doors
             print("Player collided with door")
             if not self.door_opened:
-                self.open_door.set_volume(0.015)
+                self.open_door.set_volume(VOLUME)
                 self.open_door.play(loops=0)
                 self.door_opened = True
             
@@ -162,11 +193,18 @@ class Game:
         
         if not enter_doors:
             self.door_opened = False
-            #print(f"Player teleported to ({self.player.rect.x}, {self.player.rect.y})")
+            
 
-    
+        
+        talk_to_arthur = pygame.sprite.spritecollide(self.player, self.npcs, False, collide_hit_rect)
+        if talk_to_arthur:
+            if self.player.direction == "up":
+                self.near_arthur = True
 
-       
+        if not talk_to_arthur:
+            self.near_arthur = False
+            self.talking_arthur = False
+
     def fade_out(self):
         print("Fading out")
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
@@ -183,6 +221,8 @@ class Game:
     def draw(self):
         # This method draws the game to the screen.
         # It could clear the screen, draw game objects, draw the UI, etc.
+
+
 
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
         self.screen.blit(self.map_img2, self.camera.apply_rect(self.map_rect))
@@ -209,6 +249,10 @@ class Game:
         if self.fade_active:
             self.fade_out()
 
+        if self.talking_arthur and self.player.direction == "up":
+            print("Arthur: Hello, I'm Arthur")
+            text_box(self, "Hey there Mister I'm Arthur!")
+            
         pygame.display.flip()  # Update the display
 
 
@@ -223,10 +267,11 @@ class Game:
                     self.quit()
                 if event.key == pygame.K_h:
                     self.draw_debug = not self.draw_debug
-                if event.key == pygame.K_f:
-                    print(self.fade_active)
-                    self.fade_active = True
-                    print(self.fade_active)
+                if event.key == pygame.K_x:
+                    if self.near_arthur:
+                        print("Arthur: Hello, I'm Arthur")
+                        self.talking_arthur = not self.talking_arthur
+                        print(self.talking_arthur)
 
 
 
