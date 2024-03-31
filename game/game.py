@@ -1,12 +1,15 @@
 from os import path
 import sys
 import pygame
-from .settings import *
+
 from characters.player.player import *
 from characters.npc.arthur import *
 from characters.npc.walter import *
 
+from .items import *
+from .inventory import *
 from .tilemap import *
+from .settings import *
 
 #sprite for collision
 class Obstacle(pygame.sprite.Sprite):
@@ -19,7 +22,6 @@ class Obstacle(pygame.sprite.Sprite):
         self.y = y * 2
         self.rect.x = self.x
         self.rect.y = self.y
-
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, game, x, y, width, height, tp_x, tp_y):
@@ -80,6 +82,7 @@ def text_box(self, text):
 
     # Blit the text box Surface onto the screen with space from the sides and the bottom
     self.screen.blit(text_box, (padding, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom# Initialize the game
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -107,10 +110,13 @@ class Game:
         # Initialize a new game. This method is called when a new game is started.
         self.load_data()
 
+        self.inventory = Inventory()
+
         self.all_sprites = pygame.sprite.Group()
         self.npcs = pygame.sprite.Group()
         self.obstacles = pygame.sprite.Group()
         self.doors = pygame.sprite.Group()
+        self.items = pygame.sprite.Group()
 
         map_folder = path.join("e:\\PythonProjects\\Python-Game-2D\\scenes\\base_map")
 
@@ -132,6 +138,9 @@ class Game:
                 self.player = Player(self, tile_object.x, tile_object.y)
             if tile_object.name == "border":
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+
+            if tile_object.name == "pizza":
+                Pizza(self, tile_object.x, tile_object.y)
 
             if tile_object.name == "rv_door":
                 tp_x = 0  # Default teleportation coordinates
@@ -222,7 +231,7 @@ class Game:
                     self.near_arthur = True
                 if npc == self.walter:
                     self.near_walter = True
-
+        
         if not talk_to_npc:
             self.near_arthur = False
             self.talking_arthur = False
@@ -230,7 +239,12 @@ class Game:
             self.talking_walter = False
             self.near_walter = False
 
-
+        
+        item_pickup = pygame.sprite.spritecollide(self.player, self.items, False, collide_hit_rect)
+        for item in item_pickup:
+            print("Player picked up item")
+            self.inventory.add_item(Item(item.name, 1))
+            item.kill()
             
 
     def fade_out(self):
@@ -259,6 +273,8 @@ class Game:
         for sprite in self.npcs:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
+        for sprite in self.items:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
 
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
@@ -284,9 +300,10 @@ class Game:
         if self.talking_walter and self.player.direction == "up":
             print("Walter: Hello, I'm Walter")
             text_box(self, "My name is walter hartwell white. i live at 308 negra arroyo lane, albuquerque, new mexico. 87104 and we need to cook")
+        
+        self.inventory.draw(self.screen)
+
         pygame.display.flip()  # Update the display
-
-
 
 
     def events(self):
@@ -308,7 +325,10 @@ class Game:
                         print("Walter: Hello, I'm Walter")
                         self.talking_walter = not self.talking_walter
                         print(self.talking_walter)
-
+                if event.key == pygame.K_p:
+                    print("adding item")
+                    self.inventory.add_item(Item("potion"))
+                    
 
 
         # This method handles events.
