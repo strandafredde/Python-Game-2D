@@ -5,6 +5,7 @@ import pygame
 from characters.player.player import *
 from characters.npc.arthur import *
 from characters.npc.walter import *
+from characters.npc.merchant import *
 
 from .items import *
 from .inventory import *
@@ -94,7 +95,13 @@ class Game:
         self.door_opened = False
         self.talking_arthur = False
         self.talking_walter = False
-
+        self.talking_merchant = False
+        self.text_box_state_walter = "closed"
+        self.text_box_state_arthur = "closed"
+        self.text_box_state_merchant = "closed"
+        self.talk_counter_walter = 0
+        self.talk_counter_arthur = 0
+        self.talked_to_walter = False
 
     def load_data(self):
         # Load all game data. This method is called when the game is started.
@@ -134,10 +141,14 @@ class Game:
                 self.arthur = Arthur(self, tile_object.x, tile_object.y)
             if tile_object.name == "walter":
                 self.walter = Walter(self, tile_object.x, tile_object.y)
+            if tile_object.name == "merchant":
+                self.merchant = Merchant(self, tile_object.x, tile_object.y)
             if tile_object.name == "player":
                 self.player = Player(self, tile_object.x, tile_object.y)
             if tile_object.name == "border":
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+
+
 
             if tile_object.name == "pizza":
                 Pizza(self, tile_object.x, tile_object.y)
@@ -231,14 +242,17 @@ class Game:
                     self.near_arthur = True
                 if npc == self.walter:
                     self.near_walter = True
+                if npc == self.merchant:
+                    self.near_merchant = True
         
         if not talk_to_npc:
             self.near_arthur = False
             self.talking_arthur = False
+            self.talking_merchant = False
 
             self.talking_walter = False
             self.near_walter = False
-
+            self.near_merchant = False
         
         item_pickup = pygame.sprite.spritecollide(self.player, self.items, False, collide_hit_rect)
         for item in item_pickup:
@@ -270,6 +284,7 @@ class Game:
         self.screen.blit(self.map_img2, self.camera.apply_rect(self.map_rect))
         self.screen.blit(self.map_img3, self.camera.apply_rect(self.map_rect))
 
+        # Draw all sprites
         for sprite in self.npcs:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
@@ -293,14 +308,40 @@ class Game:
         if self.fade_active:
             self.fade_out()
 
+        #talking to arthur
         if self.talking_arthur and self.player.direction == "up":
-            print("Arthur: Hello, I'm Arthur")
-            text_box(self, "Hey there Mister I'm Arthur!")
-        
+            if self.talked_to_walter == False:
+                print("Arthur: Hello, I'm Arthur")
+                text_box(self, "Hey there Mister I'm Arthur!")
+
+            if self.talked_to_walter == True:
+                if self.text_box_state_arthur == 'closed':
+                    text_box(self, "Hey there Mister I'm Arthur! I heard you're helping Walter. I have a hazmat suit that you can have. I'll give it to you if you can find me a taco.")
+                    self.talk_counter_arthur += 1
+                elif self.text_box_state_arthur == 'first':
+                    text_box(self, "I need you to get me a taco. You can find it at the local market.")
+                    self.talk_counter_arthur += 1
+        #talking to walter
         if self.talking_walter and self.player.direction == "up":
-            print("Walter: Hello, I'm Walter")
-            text_box(self, "My name is walter hartwell white. i live at 308 negra arroyo lane, albuquerque, new mexico. 87104 and we need to cook")
-        
+            if self.text_box_state_walter == 'closed':
+                text_box(self, "Hello, I'm Walter White. I'm a high school chemistry teacher. I have cancer and I need to make money for my family. I'm going to start cooking and i need your help")
+                self.talk_counter_walter += 1
+            elif self.text_box_state_walter == 'first':
+                self.talked_to_walter = True
+                text_box(self, "I need you to help me gather supplies. I need a gas mask, a hazmat suit, and some flour. Arthur might got a hazmat suit. You can find the flour and gasmask at the local market.")
+                
+     
+        #talking to merchant
+        if self.talking_merchant and self.player.direction == "up":
+            if self.text_box_state_merchant == 'closed':
+                text_box(self, "Welcome to my shop! I have a variety of items for sale. What can I get you?")
+
+
+        if not self.player.direction == "up":
+            self.talking_arthur = False
+            self.talking_walter = False
+            self.talking_merchant = False
+
         self.inventory.draw(self.screen)
 
         pygame.display.flip()  # Update the display
@@ -316,15 +357,25 @@ class Game:
                 if event.key == pygame.K_h:
                     self.draw_debug = not self.draw_debug
                 if event.key == pygame.K_x:
+                    #talking to arthur
                     if self.near_arthur:
-                        print("Arthur: Hello, I'm Arthur")
                         self.talking_arthur = not self.talking_arthur
-                        print(self.talking_arthur)
+                        if self.talk_counter_arthur >= 1:
+                            self.text_box_state_arthur = 'first'
                     
+                    #talking to walter
                     if self.near_walter:
-                        print("Walter: Hello, I'm Walter")
-                        self.talking_walter = not self.talking_walter
-                        print(self.talking_walter)
+                        print(self.talk_counter_walter)
+                        if self.text_box_state_walter == 'closed':
+                            self.talking_walter = True
+                            if self.talk_counter_walter >= 1:
+                                self.text_box_state_walter = 'first'
+                        elif self.text_box_state_walter == 'first':
+                            self.talking_walter = not self.talking_walter
+                            
+                    #talking to merchant
+                    if self.near_merchant:
+                        self.talking_merchant = not self.talking_merchant
                 if event.key == pygame.K_p:
                     print("adding item")
                     self.inventory.add_item(Item("potion"))
