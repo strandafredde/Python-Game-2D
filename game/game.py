@@ -375,6 +375,13 @@ class Game:
                 elif self.text_box_state_arthur == 'first':
                     text_box(self, "I need you to get me a taco. You can find it at the local market.")
                     self.talk_counter_arthur += 1
+                
+                if self.inventory.get_item("TACO"):
+                    text_box(self, "Thanks for the taco! Here's the hazmat suit.")
+                    self.inventory.remove_item(Item("TACO"))
+                    self.inventory.add_item(Item("HAZMAT SUIT"))
+                    
+
         #talking to walter
         if self.talking_walter and self.player.direction == "up":
             if self.text_box_state_walter == 'closed':
