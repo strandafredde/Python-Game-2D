@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_speed = 40
         self.direction = "down"
         self.teleporting = False
-        
+        self.money = 1000
     def load_assets(self):
         self.walk_down = load_spritesheet("assets/player/main_char_default.png", 64, 64, 10, 1.6)
         self.walk_up = load_spritesheet("assets/player/main_char_default.png", 64, 64, 8, 1.6)

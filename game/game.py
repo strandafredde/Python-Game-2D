@@ -37,6 +37,7 @@ class Door(pygame.sprite.Sprite):
         self.tp_x = tp_x * 2
         self.tp_y = tp_y * 2
 
+    
 def text_box(self, text):
     padding = 20  # Space from the sides and the bottom
     text_padding = 10  # Space from the text to the text box
@@ -84,6 +85,54 @@ def text_box(self, text):
     # Blit the text box Surface onto the screen with space from the sides and the bottom
     self.screen.blit(text_box, (padding, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom# Initialize the game
 
+def text_box2(self, text, y):
+    padding = 20  # Space from the sides and the bottom
+    text_padding = 10  # Space from the text to the text box
+    line_spacing = 5  # Space between lines
+
+    # Create a Surface for the text box
+    text_box = pygame.Surface((WIDTH - 2 * padding, 100), pygame.SRCALPHA)  # Use SRCALPHA to allow transparent background
+    text_box.fill((0, 0, 0, 0))  # Fill the text box with transparent color
+
+    # Create a rounded border for the text box
+    border = pygame.Rect(0, 0, WIDTH - 2 * padding, 100)
+    pygame.draw.rect(text_box, BROWN, border, 0, border_radius=10)
+
+    # Create a smaller rounded rectangle for the inner part of the text box
+    inner_rect = pygame.Rect(2, 2, WIDTH - 2 * padding - 4, 96)
+    pygame.draw.rect(text_box, WHITE, inner_rect, 0, border_radius=10)
+
+    # Create a font object
+    font = pygame.font.Font('freesansbold.ttf', 20)
+
+    # Split the text into words
+    words = text.split(' ')
+    lines = ['']
+    line_index = 0
+
+    # Add words to lines
+    for word in words:
+        if lines[line_index]:  # If the current line is not empty, add a space before the word
+            temp_line = lines[line_index] + ' ' + word
+        else:  # If the current line is empty, add the word without a space
+            temp_line = lines[line_index] + word
+        temp_surface = font.render(temp_line, True, BLACK)
+        if temp_surface.get_width() <= text_box.get_width() - 2 * text_padding:
+            lines[line_index] = temp_line
+        else:
+            lines.append(word)
+            line_index += 1
+
+    # Render the lines and blit them onto the text box Surface
+    for i, line in enumerate(lines):
+        text_surface = font.render(line, True, BLACK)
+        text_rect = text_surface.get_rect(left=text_padding, top=text_padding + i * (font.get_height() + line_spacing))
+        text_box.blit(text_surface, text_rect)
+    
+    # Blit the text box Surface onto the screen with space from the sides and the bottom
+    self.screen.blit(text_box, (padding, y))  # padding pixels space from the sides and the bottom# Initialize the game
+
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -102,6 +151,9 @@ class Game:
         self.talk_counter_walter = 0
         self.talk_counter_arthur = 0
         self.talked_to_walter = False
+        self.mouse_button_down = False
+        self.button_click_in_progress = False
+        self.buttons = []
 
     def load_data(self):
         # Load all game data. This method is called when the game is started.
@@ -273,7 +325,9 @@ class Game:
             print("Alpha:", self.fade_alpha)
             self.fade_active = False
             self.fade_alpha = 0  # Reset the alpha value for the next fade effect
-        
+    
+
+
     def draw(self):
         # This method draws the game to the screen.
         # It could clear the screen, draw game objects, draw the UI, etc.
@@ -334,8 +388,8 @@ class Game:
         #talking to merchant
         if self.talking_merchant and self.player.direction == "up":
             if self.text_box_state_merchant == 'closed':
-                text_box(self, "Welcome to my shop! I have a variety of items for sale. What can I get you?")
-
+                #text_box(self, "Welcome to my shop! I have a variety of items for sale. What can I get you?")
+                self.merchant.display_shop_menu()
 
         if not self.player.direction == "up":
             self.talking_arthur = False
@@ -348,6 +402,8 @@ class Game:
 
 
     def events(self):
+         # This method handles events.
+        # It could handle input from the player, respond to game events, etc.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
@@ -379,8 +435,10 @@ class Game:
                 if event.key == pygame.K_p:
                     print("adding item")
                     self.inventory.add_item(Item("potion"))
-                    
+                
 
 
-        # This method handles events.
-        # It could handle input from the player, respond to game events, etc.
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    print("Mouse button up: ", event.pos)
+                    self.merchant.check_button_click(event.pos)
