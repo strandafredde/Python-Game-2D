@@ -205,6 +205,8 @@ class Game:
             if tile_object.name == "pizza":
                 Pizza(self, tile_object.x, tile_object.y)
 
+            if tile_object.name == "sword":
+                Sword(self, tile_object.x, tile_object.y)
             if tile_object.name == "rv_door":
                 tp_x = 0  # Default teleportation coordinates
                 tp_y = 0
@@ -310,19 +312,23 @@ class Game:
         for item in item_pickup:
             print("Player picked up item")
             self.inventory.add_item(Item(item.name, 1))
+            if item.name == "Sword":
+                self.player.equipped_sword = True
+                print("sword: ", self.player.equipped_sword)
             item.kill()
-            
+        
+        
 
     def fade_out(self):
-        print("Fading out")
+        #print("Fading out")
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
         fade_surface.fill((0, 0, 0))  # Fill with black color
         fade_surface.set_alpha(self.fade_alpha)
         self.screen.blit(fade_surface, (0, 0))
         self.fade_alpha += 5  # Increase the alpha value to make the fade effect progress'
-        print("Alpha:", self.fade_alpha)
+        #print("Alpha:", self.fade_alpha)
         if self.fade_alpha >= 255:
-            print("Alpha:", self.fade_alpha)
+            #print("Alpha:", self.fade_alpha)
             self.fade_active = False
             self.fade_alpha = 0  # Reset the alpha value for the next fade effect
     
@@ -346,7 +352,15 @@ class Game:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
         for sprite in self.all_sprites:
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
+            if sprite == self.player and self.player.equipped_sword:
+                pos = self.camera.apply(sprite)
+                adjusted_pos = (pos[0] - 102.5, pos[1])  # Adjust the x position
+                self.screen.blit(sprite.image, adjusted_pos)
+            else:
+                if not self.player.equipped_sword:
+                    self.screen.blit(sprite.image, self.camera.apply(sprite))
+                if sprite != self.player:
+                    self.screen.blit(sprite.image, self.camera.apply(sprite))
             if self.draw_debug:
                 pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect ))
 
@@ -444,6 +458,10 @@ class Game:
                     self.inventory.add_item(Item("potion"))
                 
 
+                if event.key == pygame.K_1:
+                    if self.inventory.get_item("Sword"):
+                        self.player.equipped_sword = not self.player.equipped_sword
+                        print("sword: ", self.player.equipped_sword)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:

@@ -1,6 +1,6 @@
 import pygame
 from game.settings import *
-from spritesheet import load_spritesheet
+from spritesheet import *
 from game.tilemap import *
 
 class Player(pygame.sprite.Sprite):
@@ -27,12 +27,32 @@ class Player(pygame.sprite.Sprite):
         self.direction = "down"
         self.teleporting = False
         self.money = 1000
+        self.equipped_sword = False
+
     def load_assets(self):
+        # #normal
         self.walk_down = load_spritesheet("assets/player/main_char_default.png", 64, 64, 10, 1.6)
         self.walk_up = load_spritesheet("assets/player/main_char_default.png", 64, 64, 8, 1.6)
         self.walk_right = load_spritesheet("assets/player/main_char_default.png", 64, 64, 11, 1.6)
         self.walk_left = load_spritesheet("assets/player/main_char_default.png", 64, 64, 9, 1.6)
 
+        #sword
+        self.walk_down_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 7, 1.6)
+        self.walk_up_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 1, 1.6)
+        self.walk_right_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 10, 1.6,)
+        self.walk_left_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 4, 1.6)
+
+        self.walk_down_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 7, 1.6)
+        self.walk_up_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 1, 1.6)
+        self.walk_right_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 10, 1.6)
+        self.walk_left_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 4, 1.6)
+
+
+        print("Player assets loaded")
+        print(self.walk_left_sword)
+        print(len(self.walk_left_sword))
+        print(len(self.walk_up_sword_idle))
+        print(self.walk_up_sword_idle)
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
         
@@ -112,43 +132,83 @@ class Player(pygame.sprite.Sprite):
             self.idle_counter += 1
 
             self.walking_counter = (self.walking_counter + 1) % self.frame_speed  
+            
 
             if self.walking:
                 self.idle_counter = 0
-                frame = (self.walking_counter // 4) + 1  # get the current frame, now you have 10 images per direction
-                if self.direction == "down":
-                    self.image = self.walk_down[frame]
-                elif self.direction == "up":
-                    self.image = self.walk_up[frame]
-                elif self.direction == "left":
-                    self.image = self.walk_left[frame]
-                elif self.direction == "right":
-                    self.image = self.walk_right[frame]
+                frame_horizontal = (self.walking_counter // 4) % 9 + 1  
+                frame_vertical = (self.walking_counter // 4) % 8 + 1  
+
+                frame_sword = (self.walking_counter // 4) % 8
+                if not self.equipped_sword:
+                    if self.direction == "down":
+                        self.image = self.walk_down[frame_vertical]
+                    elif self.direction == "up":
+                        self.image = self.walk_up[frame_vertical]
+                    elif self.direction == "left":
+                        self.image = self.walk_left[frame_horizontal]
+                    elif self.direction == "right":
+                        self.image = self.walk_right[frame_horizontal]
+                
+                if self.equipped_sword:
+                    if self.direction == "down":
+                        self.image = self.walk_down_sword[frame_sword]
+                    elif self.direction == "up":
+                        self.image = self.walk_up_sword[frame_sword]
+                    elif self.direction == "left":
+                        self.image = self.walk_left_sword[frame_sword]
+                    elif self.direction == "right":
+                        self.image = self.walk_right_sword[frame_sword]
 
             else:
                 self.walking_counter = 0
-                if self.direction == "down":
-                    if self.idle_counter % 60 < 30:
-                        self.image = self.walk_down[0]
-                    else:
-                        self.image = self.walk_down[10]
+                if not self.equipped_sword:
+                    if self.direction == "down":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_down[0]
+                        else:
+                            self.image = self.walk_down[10]
+                    
+                    elif self.direction == "up":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_up[0]
+                        else:
+                            self.image = self.walk_up[10]
+                    
+                    elif self.direction == "left":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_left[0]
+                        else:
+                            self.image = self.walk_left[10]
+                    
+                    elif self.direction == "right":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_right[0]
+                        else:
+                            self.image = self.walk_right[10]
                 
-                elif self.direction == "up":
-                    if self.idle_counter % 60 < 30:
-                        self.image = self.walk_up[0]
-                    else:
-                        self.image = self.walk_up[10]
-                
-                elif self.direction == "left":
-                    if self.idle_counter % 60 < 30:
-                        self.image = self.walk_left[0]
-                    else:
-                        self.image = self.walk_left[10]
-                
-                elif self.direction == "right":
-                    if self.idle_counter % 60 < 30:
-                        self.image = self.walk_right[0]
-                    else:
-                        self.image = self.walk_right[10]
-
-                
+                if self.equipped_sword:
+                    if self.direction == "down":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_down_sword_idle[0]
+                        else:
+                            self.image = self.walk_down_sword_idle[1]
+                    
+                    elif self.direction == "up":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_up_sword_idle[0]
+                        else:
+                            self.image = self.walk_up_sword_idle[1]
+                    
+                    elif self.direction == "left":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_left_sword_idle[0]
+                        else:
+                            self.image = self.walk_left_sword_idle[1]
+                    
+                    elif self.direction == "right":
+                        if self.idle_counter % 60 < 40:
+                            self.image = self.walk_right_sword_idle[0]
+                        else:
+                            self.image = self.walk_right_sword_idle[1]
+                    
