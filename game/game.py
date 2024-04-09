@@ -6,6 +6,7 @@ from characters.player.player import *
 from characters.npc.arthur import *
 from characters.npc.walter import *
 from characters.npc.merchant import *
+from characters.monsters.fly import *
 
 from .items import *
 from .inventory import *
@@ -170,17 +171,19 @@ class Game:
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
         self.load_data()
-
         self.inventory = Inventory()
 
+        # Create sprite groups which is used to draw and update sprites
         self.all_sprites = pygame.sprite.Group()
         self.npcs = pygame.sprite.Group()
+        self.monsters = pygame.sprite.Group()
         self.obstacles = pygame.sprite.Group()
         self.doors = pygame.sprite.Group()
         self.items = pygame.sprite.Group()
 
         map_folder = path.join("e:\\PythonProjects\\Python-Game-2D\\scenes\\base_map")
 
+        # Load the maps and create the map images
         self.map = TiledMap(path.join(map_folder, "main_map.tmx"))
         self.map_img = self.map.make_map("base_layer")
         self.map_img2 = self.map.make_map("detail_layer")
@@ -189,7 +192,7 @@ class Game:
 
         self.map_rect = self.map_img.get_rect()
         
-
+        # Places the objects on the map in the correct location depending on the object name
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == "arthur":
                 self.arthur = Arthur(self, tile_object.x, tile_object.y)
@@ -197,6 +200,9 @@ class Game:
                 self.walter = Walter(self, tile_object.x, tile_object.y)
             if tile_object.name == "merchant":
                 self.merchant = Merchant(self, tile_object.x, tile_object.y)
+            if tile_object.name == "fly":
+                Fly(self, tile_object.x, tile_object.y)
+
             if tile_object.name == "player":
                 self.player = Player(self, tile_object.x, tile_object.y)
             if tile_object.name == "border":
@@ -209,6 +215,8 @@ class Game:
 
             if tile_object.name == "sword":
                 Sword(self, tile_object.x, tile_object.y)
+
+            # Teleportation to doors, both enter and exit
             if tile_object.name == "rv_door":
                 tp_x = 0  # Default teleportation coordinates
                 tp_y = 0
@@ -272,6 +280,7 @@ class Game:
         # This method updates the game. It could be used to update counters, check for collisions, etc.
         
         self.npcs.update()
+        self.monsters.update()
         self.all_sprites.update()
         self.camera.update(self.player)
         enter_doors = pygame.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
@@ -294,6 +303,7 @@ class Game:
                 self.sword_swing.set_volume(0.05)
                 self.sword_swing.play(loops=0)
                 self.swung_sword = True
+                self.player.swing_sword()
 
         if not self.player.swinging_sword:
             self.swung_sword = False
@@ -329,7 +339,6 @@ class Game:
         
 
     def fade_out(self):
-        #print("Fading out")
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
         fade_surface.fill((0, 0, 0))  # Fill with black color
         fade_surface.set_alpha(self.fade_alpha)
@@ -376,6 +385,11 @@ class Game:
             if self.draw_debug:
                 pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect ))
 
+        for sprite in self.monsters:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+            if self.draw_debug:
+                pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect))
+
         self.screen.blit(self.map_img_last, self.camera.apply_rect(self.map_rect))
 
         if self.draw_debug:
@@ -385,6 +399,7 @@ class Game:
             for door in self.doors:
                 pygame.draw.rect(self.screen, GREEN, self.camera.apply_rect(door.rect))
 
+        self.player.hp_bar()
         if self.fade_active:
             self.fade_out()
 

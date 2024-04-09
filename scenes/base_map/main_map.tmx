@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="300" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="720">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="300" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="722">
  <tileset firstgid="1" source="2DgamespriteSheet.tsx"/>
  <tileset firstgid="1433" source="WW_RV.tsx"/>
  <tileset firstgid="1469" source="TopDownHouse_FloorsAndWalls.tsx"/>
@@ -718,6 +718,8 @@
   <object id="717" name="border" x="7.03409" y="0.272727" width="8181.75"/>
   <object id="718" name="border" x="-3.20833" y="-4.26326e-14" width="4.41667" height="3202.33"/>
   <object id="719" name="sword" x="8404.33" y="1406.67"/>
+  <object id="720" name="fly" x="1945.33" y="1742.67"/>
+  <object id="721" name="fly" x="2101.33" y="1008"/>
  </objectgroup>
  <layer id="2" name="walkbehind_layer" width="300" height="100" opacity="0.9">
   <data encoding="csv">

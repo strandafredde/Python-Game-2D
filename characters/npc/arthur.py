@@ -1,6 +1,5 @@
 import pygame
 
-
 class Arthur(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.npcs
@@ -17,6 +16,7 @@ class Arthur(pygame.sprite.Sprite):
         self.width = 40
         self.height = 64
     
+
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
     

@@ -30,6 +30,10 @@ class Player(pygame.sprite.Sprite):
         self.has_sword = False
         self.equipped_sword = False
         self.swinging_sword = False
+        self.health = 100
+        self.sword_size = 64
+
+    
 
     def load_assets(self):
         # #normal
@@ -60,9 +64,31 @@ class Player(pygame.sprite.Sprite):
         print(len(self.walk_left_sword))
         print(len(self.walk_up_sword_idle))
         print(self.walk_up_sword_idle)
+    
+    def hp_bar(self):
+        pygame.draw.rect(self.game.screen, (255, 0, 0), (self.x, self.y - 10, 64, 5))
+        pygame.draw.rect(self.game.screen, (0, 255, 0), (self.x, self.y - 10, 64 * (self.health / 100), 5))
+
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
         
+    
+    def swing_sword(self):
+    # Create a new hit rectangle for the sword
+        if self.direction == "up":
+            sword_rect = pygame.Rect(self.rect.x, self.rect.y - self.sword_size, self.rect.width, self.sword_size)
+        elif self.direction == "down":
+            sword_rect = pygame.Rect(self.rect.x, self.rect.bottom, self.rect.width, self.sword_size)
+        elif self.direction == "left":
+            sword_rect = pygame.Rect(self.rect.x - self.sword_size, self.rect.y, self.sword_size, self.rect.height)
+        elif self.direction == "right":
+            sword_rect = pygame.Rect(self.rect.right, self.rect.y, self.sword_size, self.rect.height)
+
+        hits = [fly for fly in self.game.monsters if sword_rect.colliderect(fly.rect)]
+        for fly in hits:
+            print("Hit the fly")
+            fly.health -= 10  # Or however much damage you want the sword to do
+   
     def collide_with_obstacles(self, dir):
         if dir == 'x':
             hits = pygame.sprite.spritecollide(self, self.game.obstacles, False, collide_hit_rect)
@@ -84,6 +110,8 @@ class Player(pygame.sprite.Sprite):
                 self.rect.bottom = self.y
 
     def move(self):
+        if self.swinging_sword:
+            return
         if not self.game.fade_active:
 
             keys = pygame.key.get_pressed()
@@ -143,8 +171,9 @@ class Player(pygame.sprite.Sprite):
             self.walking_counter = (self.walking_counter + 1) % self.frame_speed  
             
             if self.swinging_sword and self.equipped_sword:
-                print("Swinging sword")
+                #print("Swinging sword")
                 self.walking = False
+                
                 frame_sword = (self.walking_counter // 5) % 5
                 if self.direction == "down":
                     self.image = self.swing_sword_down[frame_sword]
@@ -155,15 +184,15 @@ class Player(pygame.sprite.Sprite):
                 elif self.direction == "right":
                     self.image = self.swing_sword_right[frame_sword]
                 if frame_sword >= 4:
-                    print("Done swinging sword")
+                    #print("Done swinging sword")
                     self.swinging_sword = False
 
-            elif self.walking:
+            elif self.walking :
                 self.idle_counter = 0
-                frame_horizontal = (self.walking_counter // 4) % 9 + 1  
-                frame_vertical = (self.walking_counter // 4) % 8 + 1  
+                frame_horizontal = (self.walking_counter // 6) % 9 + 1  
+                frame_vertical = (self.walking_counter // 6) % 8 + 1  
 
-                frame_sword = (self.walking_counter // 4) % 8
+                frame_sword = (self.walking_counter // 6) % 8
                 if not self.equipped_sword:
                     if self.direction == "down":
                         self.image = self.walk_down[frame_vertical]
