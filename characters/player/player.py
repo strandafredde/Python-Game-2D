@@ -27,6 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.direction = "down"
         self.teleporting = False
         self.money = 1000
+        self.has_sword = False
         self.equipped_sword = False
         self.swinging_sword = False
 
@@ -38,20 +39,20 @@ class Player(pygame.sprite.Sprite):
         self.walk_left = load_spritesheet("assets/player/main_char_default.png", 64, 64, 9, 1.6)
 
         #sword
-        self.walk_down_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 7, 1.6)
-        self.walk_up_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 1, 1.6)
-        self.walk_right_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 10, 1.6,)
-        self.walk_left_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 64, 4, 1.6)
+        self.walk_down_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 2, 1.6)
+        self.walk_up_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 0, 1.6)
+        self.walk_right_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 3, 1.6,)
+        self.walk_left_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 1, 1.6)
 
-        self.walk_down_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 7, 1.6)
-        self.walk_up_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 1, 1.6)
-        self.walk_right_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 10, 1.6)
-        self.walk_left_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 4, 1.6)
+        self.walk_down_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 2, 1.6)
+        self.walk_up_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 0, 1.6)
+        self.walk_right_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 3, 1.6)
+        self.walk_left_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 1, 1.6)
 
-        self.swing_sword_down = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 7, 1.6)
-        self.swing_sword_up = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 1, 1.6)
-        self.swing_sword_right = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 10, 1.6)
-        self.swing_sword_left = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 4, 1.6)
+        self.swing_sword_down = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 2, 1.6)
+        self.swing_sword_up = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 0, 1.6)
+        self.swing_sword_right = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 3, 1.6)
+        self.swing_sword_left = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 1, 1.6)
 
 
         print("Player assets loaded")

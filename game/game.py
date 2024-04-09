@@ -322,7 +322,7 @@ class Game:
             print("Player picked up item")
             self.inventory.add_item(Item(item.name, 1))
             if item.name == "Sword":
-                self.player.equipped_sword = True
+                self.player.has_sword = True
                 print("sword: ", self.player.equipped_sword)
             item.kill()
         
@@ -363,11 +363,14 @@ class Game:
         for sprite in self.all_sprites:
             if sprite == self.player and self.player.equipped_sword:
                 pos = self.camera.apply(sprite)
-                adjusted_pos = (pos[0] - 102.5, pos[1])  # Adjust the x position
+                adjusted_pos = (pos[0] - 102.5, pos[1] - 102.5)  # Adjust the x position
                 self.screen.blit(sprite.image, adjusted_pos)
+
             else:
                 if not self.player.equipped_sword:
                     self.screen.blit(sprite.image, self.camera.apply(sprite))
+                
+
                 if sprite != self.player:
                     self.screen.blit(sprite.image, self.camera.apply(sprite))
             if self.draw_debug:
@@ -468,13 +471,14 @@ class Game:
                 
 
                 if event.key == pygame.K_1:
-                    if self.inventory.get_item("Sword"):
+                    if self.inventory.get_item("Sword") and self.player.has_sword:
                         self.player.equipped_sword = not self.player.equipped_sword
                         print("sword: ", self.player.equipped_sword)
                 
                 if event.key == pygame.K_SPACE:
-                    self.player.swinging_sword = True
-                    print("pressed space")
+                    if self.player.equipped_sword:
+                        self.player.swinging_sword = True
+                        print("pressed space")
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     print("Mouse button up: ", event.pos)
