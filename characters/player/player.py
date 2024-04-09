@@ -28,6 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.teleporting = False
         self.money = 1000
         self.equipped_sword = False
+        self.swinging_sword = False
 
     def load_assets(self):
         # #normal
@@ -46,6 +47,11 @@ class Player(pygame.sprite.Sprite):
         self.walk_up_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 1, 1.6)
         self.walk_right_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 10, 1.6)
         self.walk_left_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 64, 4, 1.6)
+
+        self.swing_sword_down = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 7, 1.6)
+        self.swing_sword_up = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 1, 1.6)
+        self.swing_sword_right = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 10, 1.6)
+        self.swing_sword_left = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 64, 4, 1.6)
 
 
         print("Player assets loaded")
@@ -126,6 +132,8 @@ class Player(pygame.sprite.Sprite):
                 self.direction = "down"
                     
     def update(self):
+
+
         if not self.game.fade_active:
 
             self.move()
@@ -133,8 +141,23 @@ class Player(pygame.sprite.Sprite):
 
             self.walking_counter = (self.walking_counter + 1) % self.frame_speed  
             
+            if self.swinging_sword and self.equipped_sword:
+                print("Swinging sword")
+                self.walking = False
+                frame_sword = (self.walking_counter // 5) % 5
+                if self.direction == "down":
+                    self.image = self.swing_sword_down[frame_sword]
+                elif self.direction == "up":
+                    self.image = self.swing_sword_up[frame_sword]
+                elif self.direction == "left":
+                    self.image = self.swing_sword_left[frame_sword]
+                elif self.direction == "right":
+                    self.image = self.swing_sword_right[frame_sword]
+                if frame_sword >= 4:
+                    print("Done swinging sword")
+                    self.swinging_sword = False
 
-            if self.walking:
+            elif self.walking:
                 self.idle_counter = 0
                 frame_horizontal = (self.walking_counter // 4) % 9 + 1  
                 frame_vertical = (self.walking_counter // 4) % 8 + 1  

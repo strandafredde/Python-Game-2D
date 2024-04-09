@@ -142,6 +142,7 @@ class Game:
         self.fade_active = False 
         self.fade_alpha = 0
         self.door_opened = False
+        self.swung_sword = False
         self.talking_arthur = False
         self.talking_walter = False
         self.talking_merchant = False
@@ -160,9 +161,10 @@ class Game:
         try:
             self.open_door = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\door_open.wav")
             self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\littleroot_town_music.wav")
+            self.sword_swing = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\sword_swing.wav")
             print("Game data loaded successfully")
-        except:
-            print("Cannot load game data")
+        except Exception as e:
+            print("Cannot load game data: " + str(e))
 
 
     def new(self):
@@ -287,7 +289,14 @@ class Game:
         if not enter_doors:
             self.door_opened = False
             
+        if self.player.swinging_sword:
+            if not self.swung_sword:
+                self.sword_swing.set_volume(0.05)
+                self.sword_swing.play(loops=0)
+                self.swung_sword = True
 
+        if not self.player.swinging_sword:
+            self.swung_sword = False
         
         talk_to_npc = pygame.sprite.spritecollide(self.player, self.npcs, False, collide_hit_rect)
         for npc in talk_to_npc:
@@ -462,8 +471,13 @@ class Game:
                     if self.inventory.get_item("Sword"):
                         self.player.equipped_sword = not self.player.equipped_sword
                         print("sword: ", self.player.equipped_sword)
-
+                
+                if event.key == pygame.K_SPACE:
+                    self.player.swinging_sword = True
+                    print("pressed space")
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     print("Mouse button up: ", event.pos)
                     self.merchant.check_button_click(event.pos)
+            
+            
