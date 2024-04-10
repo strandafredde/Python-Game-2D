@@ -11,6 +11,7 @@ class Fly(pygame.sprite.Sprite):
         self.game = game
         self.image = self.flying[0]
         self.rect = self.image.get_rect() 
+        self.hit_rect = self.rect.inflate(-20, -20)
         self.x = x * 2
         self.y = y * 2
         self.rect.midbottom= (self.x, self.y)
@@ -39,6 +40,7 @@ class Fly(pygame.sprite.Sprite):
 
     def update(self):
         #Updates info about the fly
+        self.hit_rect.center = self.rect.center
         if self.health > 0:
             self.move_towards_player()
             self.counter = self.counter + 1 % self.frame_speed
@@ -59,8 +61,8 @@ class Fly(pygame.sprite.Sprite):
                 self.dying_counter = 0
                 self.kill()
                 Coin(self.game, self.rect.centerx, self.rect.centery)
-                
-        if self.rect.colliderect(self.game.player.hit_rect):
+
+        if self.hit_rect.colliderect(self.game.player.hit_rect):
             now = pygame.time.get_ticks()
             if now - self.last_hit_time > 1000:
                 self.hurt.set_volume(0.1)

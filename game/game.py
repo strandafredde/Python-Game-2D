@@ -363,24 +363,28 @@ class Game:
         # It could clear the screen, draw game objects, draw the UI, etc.
 
 
-
+        
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
         self.screen.blit(self.map_img2, self.camera.apply_rect(self.map_rect))
         self.screen.blit(self.map_img3, self.camera.apply_rect(self.map_rect))
 
-        # Draw all sprites
+        #draw all sprites
         for sprite in self.npcs:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-
+        #draw items
         for sprite in self.items:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-
+            if self.draw_debug:
+                pygame.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.rect))
+        #draw player if equipped with sword     
         for sprite in self.all_sprites:
             if sprite == self.player and self.player.equipped_sword:
                 pos = self.camera.apply(sprite)
                 adjusted_pos = (pos[0] - 102.5, pos[1] - 102.5)  # Adjust the x position
                 self.screen.blit(sprite.image, adjusted_pos)
-
+                if self.player.swinging_sword:
+                    if self.draw_debug:
+                        pygame.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.sword_rect))
             else:
                 if not self.player.equipped_sword:
                     self.screen.blit(sprite.image, self.camera.apply(sprite))
@@ -390,11 +394,14 @@ class Game:
                     self.screen.blit(sprite.image, self.camera.apply(sprite))
             if self.draw_debug:
                 pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect ))
+                
 
+        #draw monsters
         for sprite in self.monsters:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
             if self.draw_debug:
-                pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.hit_rect))
+                pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.rect))
+
 
         self.screen.blit(self.map_img_last, self.camera.apply_rect(self.map_rect))
 
@@ -405,7 +412,7 @@ class Game:
             for door in self.doors:
                 pygame.draw.rect(self.screen, GREEN, self.camera.apply_rect(door.rect))
 
-        self.player.hp_bar()
+        
         if self.fade_active:
             self.fade_out()
 

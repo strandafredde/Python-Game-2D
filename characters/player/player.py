@@ -31,7 +31,7 @@ class Player(pygame.sprite.Sprite):
         self.equipped_sword = False
         self.swinging_sword = False
         self.health = 100
-        self.sword_size = 64
+        self.sword_size = 48
 
     
 
@@ -76,15 +76,15 @@ class Player(pygame.sprite.Sprite):
     def swing_sword(self):
     # Create a new hit rectangle for the sword
         if self.direction == "up":
-            sword_rect = pygame.Rect(self.rect.x, self.rect.y - self.sword_size, self.rect.width, self.sword_size)
+            self.sword_rect = pygame.Rect(self.hit_rect.x, self.hit_rect.y - self.sword_size, self.rect.width, self.sword_size)
         elif self.direction == "down":
-            sword_rect = pygame.Rect(self.rect.x, self.rect.bottom, self.rect.width, self.sword_size)
+             self.sword_rect = pygame.Rect(self.hit_rect.x, self.hit_rect.bottom, self.rect.width, self.sword_size)
         elif self.direction == "left":
-            sword_rect = pygame.Rect(self.rect.x - self.sword_size, self.rect.y, self.sword_size, self.rect.height)
+             self.sword_rect = pygame.Rect(self.hit_rect.x - self.sword_size, self.rect.y, self.sword_size, self.rect.height)
         elif self.direction == "right":
-            sword_rect = pygame.Rect(self.rect.right, self.rect.y, self.sword_size, self.rect.height)
+             self.sword_rect = pygame.Rect(self.hit_rect.right, self.rect.y, self.sword_size, self.rect.height)
 
-        hits = [fly for fly in self.game.monsters if sword_rect.colliderect(fly.rect)]
+        hits = [fly for fly in self.game.monsters if  self.sword_rect.colliderect(fly.hit_rect)]
         for fly in hits:
             print("Hit the fly")
             fly.is_hit = True
