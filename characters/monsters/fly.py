@@ -1,4 +1,6 @@
 import pygame
+import random
+from game.items import *
 from spritesheet import *
 
 class Fly(pygame.sprite.Sprite):
@@ -19,6 +21,10 @@ class Fly(pygame.sprite.Sprite):
         self.health= 20
         self.dying_sound = False
         self.last_hit_time = 0
+        self.is_hit = False
+        self.death_time = None
+        self.is_dead = False
+        self.hit_time = None
 
     def load_assets(self): 
         try:
@@ -40,6 +46,8 @@ class Fly(pygame.sprite.Sprite):
             self.image = self.flying[self.flying_counter]
 
         if self.health <= 0:
+            if self.death_time is None:
+                self.death_time = pygame.time.get_ticks()
             self.counter = (self.counter + 1) % self.frame_speed
             self.dying_counter = ((self.counter // 12) + 3) % len(self.dying)
             self.image = self.dying[self.dying_counter]
@@ -47,28 +55,43 @@ class Fly(pygame.sprite.Sprite):
                 self.fly_dying.set_volume(0.1)
                 self.fly_dying.play()
                 self.dying_sound = True
-            if self.dying_counter == len(self.dying) - 1:
+            elif self.dying_counter == len(self.dying) - 1 and pygame.time.get_ticks() - self.death_time > 500:
+                self.dying_counter = 0
                 self.kill()
-        
+                Coin(self.game, self.rect.centerx, self.rect.centery)
+                
         if self.rect.colliderect(self.game.player.hit_rect):
             now = pygame.time.get_ticks()
-            if now - self.last_hit_time > 1000:  # 1000 milliseconds = 1 second
+            if now - self.last_hit_time > 1000:
                 self.hurt.set_volume(0.1)
                 self.hurt.play()
                 self.game.player.health -= 10
                 print(self.game.player.health)
                 self.last_hit_time = now
+        if self.is_hit:
+            if self.hit_time is None:
+                self.hit_time = pygame.time.get_ticks()  # Set the hit time when the fly is hit
+            elif pygame.time.get_ticks() - self.hit_time > 1000:
+                self.is_hit = False  # Set is_hit back to False after 1 second
+                self.hit_time = None  # Reset the hit time
+            return
     def move_towards_player(self):
-        #Make the fly move towards the player if the player is within 400 pixels
-        if abs(self.game.player.rect.x - self.rect.x) < 400:
-            if self.game.player.rect.x + 20 < self.rect.x:
+        # Make the fly move towards the player if the player is within 400 pixels
+        if self.is_hit:
+            return  
+
+        player_pos = pygame.math.Vector2(self.game.player.rect.x, self.game.player.rect.y)
+        fly_pos = pygame.math.Vector2(self.rect.x, self.rect.y)
+        distance = player_pos.distance_to(fly_pos)
+
+        if distance < 300:
+            if self.game.player.rect.x + 30 < self.rect.x:
                 self.rect.x -= 1
-            elif self.game.player.rect.x - 20 > self.rect.x:
+            elif self.game.player.rect.x - 30 > self.rect.x:
                 self.rect.x += 1
-        if abs(self.game.player.rect.y - self.rect.y) < 400:
-            if self.game.player.rect.y + 20 < self.rect.y:
+            if self.game.player.rect.y + 30 < self.rect.y:
                 self.rect.y -= 1
-            elif self.game.player.rect.y - 20 > self.rect.y:
+            elif self.game.player.rect.y - 30 > self.rect.y:
                 self.rect.y += 1
 
     def draw(self):

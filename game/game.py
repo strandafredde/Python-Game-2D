@@ -163,6 +163,7 @@ class Game:
             self.open_door = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\door_open.wav")
             self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\littleroot_town_music.wav")
             self.sword_swing = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\sword_swing.wav")
+            self.coin_pickup = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\coin_pickup.wav")
             print("Game data loaded successfully")
         except Exception as e:
             print("Cannot load game data: " + str(e))
@@ -201,7 +202,7 @@ class Game:
             if tile_object.name == "merchant":
                 self.merchant = Merchant(self, tile_object.x, tile_object.y)
             if tile_object.name == "fly":
-                Fly(self, tile_object.x, tile_object.y)
+                self.fly = Fly(self, tile_object.x, tile_object.y)
 
             if tile_object.name == "player":
                 self.player = Player(self, tile_object.x, tile_object.y)
@@ -334,6 +335,11 @@ class Game:
             if item.name == "Sword":
                 self.player.has_sword = True
                 print("sword: ", self.player.equipped_sword)
+            
+            if item.name == "Coin":
+                self.player.money += 1
+                self.coin_pickup.set_volume(0.025)
+                self.coin_pickup.play(loops=0)
             item.kill()
         
         

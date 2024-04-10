@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_speed = 40
         self.direction = "down"
         self.teleporting = False
-        self.money = 1000
+        self.money = 0
         self.has_sword = False
         self.equipped_sword = False
         self.swinging_sword = False
@@ -87,7 +87,8 @@ class Player(pygame.sprite.Sprite):
         hits = [fly for fly in self.game.monsters if sword_rect.colliderect(fly.rect)]
         for fly in hits:
             print("Hit the fly")
-            fly.health -= 10  # Or however much damage you want the sword to do
+            fly.is_hit = True
+            fly.health -= SWORD_DAMAGE # Or however much damage you want the sword to do
    
     def collide_with_obstacles(self, dir):
         if dir == 'x':
