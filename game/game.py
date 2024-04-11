@@ -180,6 +180,7 @@ class Game:
             self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\littleroot_town_music.wav")
             self.sword_swing = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\sword_swing.wav")
             self.coin_pickup = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\coin_pickup.wav")
+            self.start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\start_screen.png")
             print("Game data loaded successfully")
         except Exception as e:
             print("Cannot load game data: " + str(e))
@@ -506,24 +507,42 @@ class Game:
         elif alignment == "center":
             text_rect.center = position
 
+        outline_color = BLACK
+        outline = 1  # Outline thickness
+        outline_surface = font.render(text, True, outline_color)
+
+        # Draw the outline
+        for x in range(-outline, outline+1):
+            for y in range(-outline, outline+1):
+                surface.blit(outline_surface, (text_rect.x + x, text_rect.y + y))
+
+
+
         surface.blit(text_surface, text_rect)
 
     def show_start_screen(self):
+        start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+        self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
+
         running = True
         while running:
             self.screen.fill((LIGHTBLUE))  # Fill the screen with light blue color
+            self.screen.blit(self.start_img, (0, 0))  # Draw the start screen image
 
             # Draw the title
-            self.draw_text("My Game", self.screen, [WIDTH // 2, HEIGHT // 4], 50, WHITE, "center")
+            self.draw_text("My Game", self.screen, [WIDTH // 2, HEIGHT // 4], 50, LIGHTBLUE, "center")
 
             # Draw the "Start Game" button
-            self.draw_text("Start Game", self.screen, [WIDTH // 2, HEIGHT // 2], 30, WHITE, "center")
+            self.draw_text("Start Game", self.screen, [WIDTH // 2, HEIGHT // 2], 30, LIGHTBLUE, "center")
 
             # Draw the "Options" button
-            self.draw_text("Options", self.screen, [WIDTH // 2, HEIGHT // 2 + 50], 30, WHITE, "center")
+            self.draw_text("Options", self.screen, [WIDTH // 2, HEIGHT // 2 + 50], 30, LIGHTBLUE, "center")
+
+            # Draw the "Controls" button
+            self.draw_text("Controls", self.screen, [WIDTH // 2, HEIGHT // 2 + 100], 30, LIGHTBLUE, "center")
 
             # Draw the "Quit" button
-            self.draw_text("Quit", self.screen, [WIDTH // 2, HEIGHT // 2 + 100], 30, WHITE, "center")
+            self.draw_text("Quit", self.screen, [WIDTH // 2, HEIGHT // 2 + 150], 30, LIGHTBLUE, "center")
 
             pygame.display.update()  # Update the display
 
@@ -538,9 +557,17 @@ class Game:
                             running = False
                         elif HEIGHT // 2 + 35 <= mouse_pos[1] <= HEIGHT // 2 + 65:  # Options button
                             self.show_options_screen()
-                        elif HEIGHT // 2 + 85 <= mouse_pos[1] <= HEIGHT // 2 + 115:  # Quit button
+                        elif HEIGHT // 2 + 85 <= mouse_pos[1] <= HEIGHT // 2 + 115:  # Controls button
+                            self.show_controls_screen()
+                        elif HEIGHT // 2 + 135 <= mouse_pos[1] <= HEIGHT // 2 + 165:  # Quit button
                             pygame.quit()
                             sys.exit()
+
+    def show_controls_screen(self):
+        pass
+
+    def show_options_screen(self):
+        pass
 
     def events(self):
          # This method handles events.
