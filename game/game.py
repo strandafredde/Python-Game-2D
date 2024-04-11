@@ -38,7 +38,23 @@ class Door(pygame.sprite.Sprite):
         self.tp_x = tp_x * 2
         self.tp_y = tp_y * 2
 
-    
+def draw_player_health(surf, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 20
+    fill = pct * BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    if pct > 0.6:
+        col = GREEN
+    elif pct > 0.3:
+        col = YELLOW
+    else:
+        col = RED
+    pygame.draw.rect(surf, col, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
 def text_box(self, text):
     padding = 20  # Space from the sides and the bottom
     text_padding = 10  # Space from the text to the text box
@@ -387,6 +403,7 @@ class Game:
                         pygame.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.sword_rect))
             else:
                 if not self.player.equipped_sword:
+                
                     self.screen.blit(sprite.image, self.camera.apply(sprite))
                 
 
@@ -399,6 +416,7 @@ class Game:
         #draw monsters
         for sprite in self.monsters:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+            sprite.draw_health()
             if self.draw_debug:
                 pygame.draw.rect(self.screen, RED, self.camera.apply_rect(sprite.rect))
 
@@ -457,10 +475,72 @@ class Game:
             self.talking_walter = False
             self.talking_merchant = False
 
+        #draw player health
+        draw_player_health(self.screen, 10, 10, self.player.health / 100)
+
         self.inventory.draw(self.screen)
 
         pygame.display.flip()  # Update the display
 
+    def draw_text(self, text, surface, position, size, color, alignment="nw"):
+        font = pygame.font.Font(None, size)  # Use the default font
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+
+        if alignment == "nw":
+            text_rect.topleft = position
+        elif alignment == "ne":
+            text_rect.topright = position
+        elif alignment == "sw":
+            text_rect.bottomleft = position
+        elif alignment == "se":
+            text_rect.bottomright = position
+        elif alignment == "n":
+            text_rect.midtop = position
+        elif alignment == "s":
+            text_rect.midbottom = position
+        elif alignment == "e":
+            text_rect.midright = position
+        elif alignment == "w":
+            text_rect.midleft = position
+        elif alignment == "center":
+            text_rect.center = position
+
+        surface.blit(text_surface, text_rect)
+
+    def show_start_screen(self):
+        running = True
+        while running:
+            self.screen.fill((LIGHTBLUE))  # Fill the screen with light blue color
+
+            # Draw the title
+            self.draw_text("My Game", self.screen, [WIDTH // 2, HEIGHT // 4], 50, WHITE, "center")
+
+            # Draw the "Start Game" button
+            self.draw_text("Start Game", self.screen, [WIDTH // 2, HEIGHT // 2], 30, WHITE, "center")
+
+            # Draw the "Options" button
+            self.draw_text("Options", self.screen, [WIDTH // 2, HEIGHT // 2 + 50], 30, WHITE, "center")
+
+            # Draw the "Quit" button
+            self.draw_text("Quit", self.screen, [WIDTH // 2, HEIGHT // 2 + 100], 30, WHITE, "center")
+
+            pygame.display.update()  # Update the display
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if WIDTH // 2 - 50 <= mouse_pos[0] <= WIDTH // 2 + 50:  # Check if the mouse click is within the x range of the buttons
+                        # Check which button was clicked
+                        if HEIGHT // 2 - 15 <= mouse_pos[1] <= HEIGHT // 2 + 15:  # Start Game button
+                            running = False
+                        elif HEIGHT // 2 + 35 <= mouse_pos[1] <= HEIGHT // 2 + 65:  # Options button
+                            self.show_options_screen()
+                        elif HEIGHT // 2 + 85 <= mouse_pos[1] <= HEIGHT // 2 + 115:  # Quit button
+                            pygame.quit()
+                            sys.exit()
 
     def events(self):
          # This method handles events.

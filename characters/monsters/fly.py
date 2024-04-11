@@ -2,6 +2,9 @@ import pygame
 import random
 from game.items import *
 from spritesheet import *
+from game.settings import *
+
+
 
 class Fly(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -20,13 +23,14 @@ class Fly(pygame.sprite.Sprite):
         self.frame_speed = 40
         self.counter = 0
         self.health= 20
+        self.max_health = 20
         self.dying_sound = False
         self.last_hit_time = 0
         self.is_hit = False
         self.death_time = None
         self.is_dead = False
         self.hit_time = None
-
+    
     def load_assets(self): 
         try:
             self.fly_dying = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\fly_dying.wav")
@@ -38,6 +42,24 @@ class Fly(pygame.sprite.Sprite):
             print("Cannot load game data: " + str(e))
 
 
+    def draw_health(self):
+        # Create a separate surface for the health bar if it doesn't exist
+        if not hasattr(self, 'health_bar_surface'):
+            self.health_bar_surface = pygame.Surface((self.rect.width, 9))
+        
+        # Fill the health bar surface with red
+        self.health_bar_surface.fill((255, 0, 0))  # Red color
+        
+        # Calculate the width of the green portion based on health percentage
+        green_width = int(self.rect.width * (self.health / self.max_health))
+        
+        # Draw the green portion representing health
+        pygame.draw.rect(self.health_bar_surface, (0, 255, 0), (0, 0, green_width, 9))
+        
+        # Blit the health bar surface onto self.image
+        self.image.blit(self.health_bar_surface, (0, 0))
+
+
     def update(self):
         #Updates info about the fly
         self.hit_rect.center = self.rect.center
@@ -46,7 +68,6 @@ class Fly(pygame.sprite.Sprite):
             self.counter = self.counter + 1 % self.frame_speed
             self.flying_counter = (self.counter // 12) % 3
             self.image = self.flying[self.flying_counter]
-
         if self.health <= 0:
             if self.death_time is None:
                 self.death_time = pygame.time.get_ticks()
@@ -61,7 +82,7 @@ class Fly(pygame.sprite.Sprite):
                 self.dying_counter = 0
                 self.kill()
                 Coin(self.game, self.rect.centerx, self.rect.centery)
-
+            
         if self.hit_rect.colliderect(self.game.player.hit_rect):
             now = pygame.time.get_ticks()
             if now - self.last_hit_time > 1000:
@@ -77,6 +98,9 @@ class Fly(pygame.sprite.Sprite):
                 self.is_hit = False  # Set is_hit back to False after 1 second
                 self.hit_time = None  # Reset the hit time
             return
+
+       
+        
     def move_towards_player(self):
         # Make the fly move towards the player if the player is within 400 pixels
         if self.is_hit:
@@ -98,4 +122,4 @@ class Fly(pygame.sprite.Sprite):
 
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
-    
+        

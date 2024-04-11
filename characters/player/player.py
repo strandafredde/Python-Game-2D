@@ -3,6 +3,9 @@ from game.settings import *
 from spritesheet import *
 from game.tilemap import *
 
+
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.load_assets()
@@ -64,10 +67,6 @@ class Player(pygame.sprite.Sprite):
         print(len(self.walk_left_sword))
         print(len(self.walk_up_sword_idle))
         print(self.walk_up_sword_idle)
-    
-    def hp_bar(self):
-        pygame.draw.rect(self.game.screen, (255, 0, 0), (self.x, self.y - 10, 64, 5))
-        pygame.draw.rect(self.game.screen, (0, 255, 0), (self.x, self.y - 10, 64 * (self.health / 100), 5))
 
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))

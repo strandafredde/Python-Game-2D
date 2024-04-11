@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="300" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="724">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="300" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="725">
  <tileset firstgid="1" source="2DgamespriteSheet.tsx"/>
  <tileset firstgid="1433" source="WW_RV.tsx"/>
  <tileset firstgid="1469" source="TopDownHouse_FloorsAndWalls.tsx"/>
@@ -111,7 +111,6 @@
  <objectgroup id="3" name="Obstacles">
   <object id="18" name="border" x="1280" y="1664" width="536" height="224"/>
   <object id="21" name="border" x="1688" y="1472" width="72" height="104"/>
-  <object id="22" name="player" x="2120" y="1744"/>
   <object id="24" name="border" x="1760" y="1576" width="32" height="56"/>
   <object id="25" name="border" x="1792" y="1632" width="32" height="32"/>
   <object id="26" name="border" x="1656" y="1440" width="40" height="40"/>
@@ -722,6 +721,7 @@
   <object id="721" name="fly" x="2101.33" y="1008"/>
   <object id="722" name="fly" x="2081.33" y="1577.33"/>
   <object id="723" name="fly" x="2105.33" y="1289.33"/>
+  <object id="724" name="player" x="8688.75" y="1427.25" width="7.75" height="4.5"/>
  </objectgroup>
  <layer id="2" name="walkbehind_layer" width="300" height="100" opacity="0.9">
   <data encoding="csv">
