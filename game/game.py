@@ -41,7 +41,7 @@ class Door(pygame.sprite.Sprite):
 def draw_player_health(surf, x, y, pct):
     if pct < 0:
         pct = 0
-    BAR_LENGTH = 100
+    BAR_LENGTH = 150
     BAR_HEIGHT = 20
     fill = pct * BAR_LENGTH
     outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
@@ -73,7 +73,7 @@ def text_box(self, text):
     pygame.draw.rect(text_box, WHITE, inner_rect, 0, border_radius=10)
 
     # Create a font object
-    font = pygame.font.Font('freesansbold.ttf', 20)
+    font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 15)
 
     # Split the text into words
     words = text.split(' ')
@@ -102,53 +102,6 @@ def text_box(self, text):
     # Blit the text box Surface onto the screen with space from the sides and the bottom
     self.screen.blit(text_box, (padding, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom# Initialize the game
 
-def text_box2(self, text, y):
-    padding = 20  # Space from the sides and the bottom
-    text_padding = 10  # Space from the text to the text box
-    line_spacing = 5  # Space between lines
-
-    # Create a Surface for the text box
-    text_box = pygame.Surface((WIDTH - 2 * padding, 100), pygame.SRCALPHA)  # Use SRCALPHA to allow transparent background
-    text_box.fill((0, 0, 0, 0))  # Fill the text box with transparent color
-
-    # Create a rounded border for the text box
-    border = pygame.Rect(0, 0, WIDTH - 2 * padding, 100)
-    pygame.draw.rect(text_box, BROWN, border, 0, border_radius=10)
-
-    # Create a smaller rounded rectangle for the inner part of the text box
-    inner_rect = pygame.Rect(2, 2, WIDTH - 2 * padding - 4, 96)
-    pygame.draw.rect(text_box, WHITE, inner_rect, 0, border_radius=10)
-
-    # Create a font object
-    font = pygame.font.Font('freesansbold.ttf', 20)
-
-    # Split the text into words
-    words = text.split(' ')
-    lines = ['']
-    line_index = 0
-
-    # Add words to lines
-    for word in words:
-        if lines[line_index]:  # If the current line is not empty, add a space before the word
-            temp_line = lines[line_index] + ' ' + word
-        else:  # If the current line is empty, add the word without a space
-            temp_line = lines[line_index] + word
-        temp_surface = font.render(temp_line, True, BLACK)
-        if temp_surface.get_width() <= text_box.get_width() - 2 * text_padding:
-            lines[line_index] = temp_line
-        else:
-            lines.append(word)
-            line_index += 1
-
-    # Render the lines and blit them onto the text box Surface
-    for i, line in enumerate(lines):
-        text_surface = font.render(line, True, BLACK)
-        text_rect = text_surface.get_rect(left=text_padding, top=text_padding + i * (font.get_height() + line_spacing))
-        text_box.blit(text_surface, text_rect)
-    
-    # Blit the text box Surface onto the screen with space from the sides and the bottom
-    self.screen.blit(text_box, (padding, y))  # padding pixels space from the sides and the bottom# Initialize the game
-
 
 class Game:
     def __init__(self):
@@ -165,9 +118,11 @@ class Game:
         self.talking_merchant = False
         self.text_box_state_walter = "closed"
         self.text_box_state_arthur = "closed"
+        self.text_box_state_arthur_bf_walter = "closed"
         self.text_box_state_merchant = "closed"
         self.talk_counter_walter = 0
         self.talk_counter_arthur = 0
+        self.talk_counter_arthur_bf_walter = 0
         self.talked_to_walter = False
         self.mouse_button_down = False
         self.button_click_in_progress = False
@@ -438,12 +393,15 @@ class Game:
         #talking to arthur
         if self.talking_arthur and self.player.direction == "up":
             if self.talked_to_walter == False:
-                print("Arthur: Hello, I'm Arthur")
-                text_box(self, "Hey there Mister I'm Arthur!")
-
+                if self.text_box_state_arthur_bf_walter == 'closed':
+                    print("Arthur: Hello, I'm Arthur")
+                    text_box(self, "Hey there Mister I'm Arthur!")
+                    self.talk_counter_arthur_bf_walter += 1
+                elif self.text_box_state_arthur_bf_walter == 'first':
+                    text_box(self, "Have you met Walter? He lives in the RV down by the river.")
             if self.talked_to_walter == True:
                 if self.text_box_state_arthur == 'closed':
-                    text_box(self, "Hey there Mister I'm Arthur! I heard you're helping Walter. I have a hazmat suit that you can have. I'll give it to you if you can find me a taco.")
+                    text_box(self, "Hey there Mister! I heard you're helping Walter. I have a hazmat suit that you can have. I'll give it to you if you can find me a taco.")
                     self.talk_counter_arthur += 1
                 elif self.text_box_state_arthur == 'first':
                     text_box(self, "I need you to get me a taco. You can find it at the local market.")
@@ -484,7 +442,7 @@ class Game:
         pygame.display.flip()  # Update the display
 
     def draw_text(self, text, surface, position, size, color, alignment="nw"):
-        font = pygame.font.Font(None, size)  # Use the default font
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", size)  # Use the default font
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
 
@@ -524,51 +482,135 @@ class Game:
         start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
+        options = ["Start Game", "Options", "Controls", "Quit"]
+        selected_option = 0
+
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
+
         running = True
         while running:
             self.screen.fill((LIGHTBLUE))  # Fill the screen with light blue color
             self.screen.blit(self.start_img, (0, 0))  # Draw the start screen image
 
             # Draw the title
-            self.draw_text("My Game", self.screen, [WIDTH // 2, HEIGHT // 4], 50, LIGHTBLUE, "center")
-
-            # Draw the "Start Game" button
-            self.draw_text("Start Game", self.screen, [WIDTH // 2, HEIGHT // 2], 30, LIGHTBLUE, "center")
-
-            # Draw the "Options" button
-            self.draw_text("Options", self.screen, [WIDTH // 2, HEIGHT // 2 + 50], 30, LIGHTBLUE, "center")
-
-            # Draw the "Controls" button
-            self.draw_text("Controls", self.screen, [WIDTH // 2, HEIGHT // 2 + 100], 30, LIGHTBLUE, "center")
-
-            # Draw the "Quit" button
-            self.draw_text("Quit", self.screen, [WIDTH // 2, HEIGHT // 2 + 150], 30, LIGHTBLUE, "center")
-
+            self.draw_text("Tahiti", self.screen, [WIDTH // 2, HEIGHT // 4], 50, LIGHTBLUE, "center")
+            for i, option in enumerate(options):
+                x = WIDTH // 2
+                y = HEIGHT // 2 + i * 50
+                self.draw_text(option, self.screen, [x, y], 30, LIGHTBLUE, "center")
+                if i == selected_option:
+                    text_width, _ = font.size(option)  # Get the width of the text
+                    if option == "Start Game":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")  # Adjust the x-coordinate of the arrow
+                    if option == "Options":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
+                    if option == "Controls":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
+                    if option == "Quit":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
             pygame.display.update()  # Update the display
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = pygame.mouse.get_pos()
-                    if WIDTH // 2 - 50 <= mouse_pos[0] <= WIDTH // 2 + 50:  # Check if the mouse click is within the x range of the buttons
-                        # Check which button was clicked
-                        if HEIGHT // 2 - 15 <= mouse_pos[1] <= HEIGHT // 2 + 15:  # Start Game button
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        selected_option = (selected_option - 1) % len(options)
+                    elif event.key == pygame.K_DOWN:
+                        selected_option = (selected_option + 1) % len(options)
+                    elif event.key == pygame.K_RETURN:
+                        if options[selected_option] == "Start Game":
                             running = False
-                        elif HEIGHT // 2 + 35 <= mouse_pos[1] <= HEIGHT // 2 + 65:  # Options button
+                        elif options[selected_option] == "Options":
                             self.show_options_screen()
-                        elif HEIGHT // 2 + 85 <= mouse_pos[1] <= HEIGHT // 2 + 115:  # Controls button
+                        elif options[selected_option] == "Controls":
                             self.show_controls_screen()
-                        elif HEIGHT // 2 + 135 <= mouse_pos[1] <= HEIGHT // 2 + 165:  # Quit button
+                        elif options[selected_option] == "Quit":
                             pygame.quit()
                             sys.exit()
 
     def show_controls_screen(self):
-        pass
+        start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+        self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
+
+        self.controls_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\controls_screen.png")
+        #self.controls_img = pygame.transform.scale(controls_img, (int(WIDTH/1.2), int(HEIGHT/1.2)))  # Scale the image
+
+        # Calculate the position to draw the controls image
+        controls_pos = ((WIDTH - self.controls_img.get_width()) // 2, (HEIGHT - self.controls_img.get_height()) // 2 + 75)
+
+        running = True
+        while running:
+            self.screen.blit(self.start_img, (0, 0))  # Draw the start screen image
+            self.screen.blit(self.controls_img, controls_pos)  # Draw the controls screen image
+            self.draw_text(">", self.screen, [15, 15], 25, LIGHTBLUE, "nw")
+            self.draw_text("Back", self.screen, [45, 15], 25, LIGHTBLUE, "nw")
+            self.draw_text("Controls", self.screen, [WIDTH // 2, HEIGHT // 6], 50, LIGHTBLUE, "center")
+            back_button = pygame.Rect(10, 6, 100, 30)
+            #pygame.draw.rect(self.screen, BLACK, back_button, 2)
+            pygame.display.update()  # Update the display	
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if back_button.collidepoint(mouse_pos):  # Back button
+                        running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        running = False
+
 
     def show_options_screen(self):
-        pass
+        global VOLUME
 
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
+
+        start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+        self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
+
+        plus_button = pygame.Rect(WIDTH // 2 + 50, HEIGHT // 2, 50, 50)
+        minus_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 50, 50)
+
+        x = WIDTH // 2
+
+        running = True
+        while running:
+            self.screen.blit(self.start_img, (0, 0))  # Draw the start screen image
+
+            self.draw_text(">", self.screen, [15, 15], 25, LIGHTBLUE, "nw")
+            self.draw_text("Back", self.screen, [45, 15], 25, LIGHTBLUE, "nw")
+            self.draw_text("Options", self.screen, [WIDTH // 2, HEIGHT // 4], 50, LIGHTBLUE, "center")
+            self.draw_text(f"Volume: {VOLUME:.2f}", self.screen, [WIDTH // 2, HEIGHT // 2 - 20], 30, LIGHTBLUE, "center")
+            text_width, _ = font.size("Volume: 100")  # Get the width of the text
+
+            self.draw_text("+", self.screen, [x - text_width//2 - 40, HEIGHT // 2 - 20 ], 30, LIGHTBLUE, "center")
+            self.draw_text("-", self.screen, [x + text_width//2 + 40, HEIGHT // 2 - 20 ], 30, LIGHTBLUE, "center")
+
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if plus_button.collidepoint(mouse_pos) and VOLUME < 100:  # Plus button clicked
+                        VOLUME += 0.01
+                    elif minus_button.collidepoint(mouse_pos) and VOLUME > 0:  # Minus button clicked
+                        VOLUME -= 0.01
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        running = False
+                    if event.key == pygame.K_UP:
+                        if VOLUME < 1:
+                            VOLUME += 0.01
+                    if event.key == pygame.K_DOWN:
+                        if VOLUME > 0:
+                            VOLUME -= 0.01
     def events(self):
          # This method handles events.
         # It could handle input from the player, respond to game events, etc.
@@ -586,7 +628,8 @@ class Game:
                         self.talking_arthur = not self.talking_arthur
                         if self.talk_counter_arthur >= 1:
                             self.text_box_state_arthur = 'first'
-                    
+                        if self.talk_counter_arthur_bf_walter >= 1:
+                            self.text_box_state_arthur_bf_walter = 'first'
                     #talking to walter
                     if self.near_walter:
                         print(self.talk_counter_walter)
