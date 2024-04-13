@@ -508,6 +508,19 @@ class Game:
                         self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
                     if option == "Quit":
                         self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
+
+            
+            rect_start = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 20, 300, 32)
+            rect_options = pygame.Rect(WIDTH // 2 - 110, HEIGHT // 2 + 30, 220, 32)
+            rect_controls = pygame.Rect(WIDTH // 2 - 120, HEIGHT // 2 + 80, 240, 32)
+            rect_quit = pygame.Rect(WIDTH // 2 - 60, HEIGHT // 2 + 130, 110, 32)
+
+            # pygame.draw.rect(self.screen, BLACK, rect_start, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_options, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_controls, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_quit, 2)
+
+
             pygame.display.update()  # Update the display
 
             for event in pygame.event.get():
@@ -528,6 +541,17 @@ class Game:
                         elif options[selected_option] == "Quit":
                             pygame.quit()
                             sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if rect_start.collidepoint(mouse_pos):
+                        running = False
+                    elif rect_options.collidepoint(mouse_pos):
+                        self.show_options_screen()
+                    elif rect_controls.collidepoint(mouse_pos):
+                        self.show_controls_screen()
+                    elif rect_quit.collidepoint(mouse_pos):
+                        pygame.quit()
+                        sys.exit()
 
     def show_controls_screen(self):
         start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
@@ -546,7 +570,9 @@ class Game:
             self.draw_text(">", self.screen, [15, 15], 25, LIGHTBLUE, "nw")
             self.draw_text("Back", self.screen, [45, 15], 25, LIGHTBLUE, "nw")
             self.draw_text("Controls", self.screen, [WIDTH // 2, HEIGHT // 6], 50, LIGHTBLUE, "center")
-            back_button = pygame.Rect(10, 6, 100, 30)
+
+            rect_back = pygame.Rect(45, 12, 100, 30)
+
             #pygame.draw.rect(self.screen, BLACK, back_button, 2)
             pygame.display.update()  # Update the display	
             for event in pygame.event.get():
@@ -556,7 +582,7 @@ class Game:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    if back_button.collidepoint(mouse_pos):  # Back button
+                    if rect_back.collidepoint(mouse_pos):  # Back button
                         running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
@@ -571,8 +597,6 @@ class Game:
         start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
-        plus_button = pygame.Rect(WIDTH // 2 + 50, HEIGHT // 2, 50, 50)
-        minus_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 50, 50)
 
         x = WIDTH // 2
 
@@ -589,6 +613,14 @@ class Game:
             self.draw_text("+", self.screen, [x - text_width//2 - 40, HEIGHT // 2 - 20 ], 30, LIGHTBLUE, "center")
             self.draw_text("-", self.screen, [x + text_width//2 + 40, HEIGHT // 2 - 20 ], 30, LIGHTBLUE, "center")
 
+            rect_plus = pygame.Rect(x - text_width//2 - 55, HEIGHT // 2 - 38, 30, 30)
+            rect_minus = pygame.Rect(x + text_width//2 + 25, HEIGHT // 2 - 38, 30, 30)
+
+            rect_back = pygame.Rect(45, 12, 100, 30)
+
+            # pygame.draw.rect(self.screen, BLACK, rect_plus, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_minus, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_back, 2)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -598,10 +630,12 @@ class Game:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    if plus_button.collidepoint(mouse_pos) and VOLUME < 100:  # Plus button clicked
+                    if rect_plus.collidepoint(mouse_pos) and VOLUME < 1:  # Plus button clicked
                         VOLUME += 0.01
-                    elif minus_button.collidepoint(mouse_pos) and VOLUME > 0:  # Minus button clicked
+                    elif rect_minus.collidepoint(mouse_pos) and VOLUME > 0.001:  # Minus button clicked
                         VOLUME -= 0.01
+                    elif rect_back.collidepoint(mouse_pos):  # Back button
+                        running = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         running = False
