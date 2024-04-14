@@ -29,7 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_speed = 40
         self.direction = "down"
         self.teleporting = False
-        self.money = 0
+        self.money = 100
         self.has_sword = False
         self.equipped_sword = False
         self.swinging_sword = False
@@ -61,6 +61,7 @@ class Player(pygame.sprite.Sprite):
         self.swing_sword_right = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 3, 1.6)
         self.swing_sword_left = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 1, 1.6)
 
+        self.hit_hurt_fly = pygame.mixer.Sound("assets/sounds/hit_hurt_fly.wav")   
 
         print("Player assets loaded")
         print(self.walk_left_sword)
@@ -86,6 +87,8 @@ class Player(pygame.sprite.Sprite):
         hits = [fly for fly in self.game.monsters if  self.sword_rect.colliderect(fly.hit_rect)]
         for fly in hits:
             print("Hit the fly")
+            self.hit_hurt_fly.set_volume(VOLUME)
+            self.hit_hurt_fly.play()
             fly.is_hit = True
             fly.health -= SWORD_DAMAGE # Or however much damage you want the sword to do
    

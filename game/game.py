@@ -488,7 +488,7 @@ class Game:
         font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
 
         scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
-
+        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
         running = True
         while running:
             self.screen.fill((LIGHTBLUE))  # Fill the screen with light blue color
@@ -530,32 +530,48 @@ class Game:
                     running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                        scroll_sound.set_volume(VOLUME)
+                        scroll_sound.set_volume(VOLUME + EXTRA_VOLUME)
                         scroll_sound.play(loops=0)
                         selected_option = (selected_option - 1) % len(options)
                     elif event.key == pygame.K_DOWN:
-                        scroll_sound.set_volume(VOLUME)
+                        scroll_sound.set_volume(VOLUME + EXTRA_VOLUME)
                         scroll_sound.play(loops=0)
                         selected_option = (selected_option + 1) % len(options)
                     elif event.key == pygame.K_RETURN:
                         if options[selected_option] == "Start Game":
+                            select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                            select_sound.play(loops=0)
                             running = False
                         elif options[selected_option] == "Options":
+                            select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                            select_sound.play(loops=0)
                             self.show_options_screen()
                         elif options[selected_option] == "Controls":
+                            select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                            select_sound.play(loops=0)
                             self.show_controls_screen()
                         elif options[selected_option] == "Quit":
+                            select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                            select_sound.play(loops=0)
                             pygame.quit()
                             sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     if rect_start.collidepoint(mouse_pos):
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         running = False
                     elif rect_options.collidepoint(mouse_pos):
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         self.show_options_screen()
                     elif rect_controls.collidepoint(mouse_pos):
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         self.show_controls_screen()
                     elif rect_quit.collidepoint(mouse_pos):
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         pygame.quit()
                         sys.exit()
 
@@ -565,6 +581,9 @@ class Game:
 
         self.controls_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\controls_screen.png")
         #self.controls_img = pygame.transform.scale(controls_img, (int(WIDTH/1.2), int(HEIGHT/1.2)))  # Scale the image
+
+
+        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
 
         # Calculate the position to draw the controls image
         controls_pos = ((WIDTH - self.controls_img.get_width()) // 2, (HEIGHT - self.controls_img.get_height()) // 2 + 75)
@@ -589,9 +608,13 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     if rect_back.collidepoint(mouse_pos):  # Back button
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         running = False
 
 
@@ -603,6 +626,8 @@ class Game:
         start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
+        scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
+        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
 
         x = WIDTH // 2
 
@@ -637,19 +662,31 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     if rect_plus.collidepoint(mouse_pos) and VOLUME < 1:  # Plus button clicked
+                        scroll_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        scroll_sound.play(loops=0)
                         VOLUME += 0.01
                     elif rect_minus.collidepoint(mouse_pos) and VOLUME > 0.001:  # Minus button clicked
+                        scroll_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        scroll_sound.play(loops=0)
                         VOLUME -= 0.01
                     elif rect_back.collidepoint(mouse_pos):  # Back button
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         running = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
+                        select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                        select_sound.play(loops=0)
                         running = False
                     if event.key == pygame.K_UP:
                         if VOLUME < 1:
+                            select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                            select_sound.play(loops=0)
                             VOLUME += 0.01
                     if event.key == pygame.K_DOWN:
                         if VOLUME > 0:
+                            select_sound.set_volume(VOLUME + EXTRA_VOLUME)
+                            select_sound.play(loops=0)
                             VOLUME -= 0.01
     def events(self):
          # This method handles events.
