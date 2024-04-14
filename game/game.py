@@ -487,6 +487,8 @@ class Game:
 
         font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
 
+        scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
+
         running = True
         while running:
             self.screen.fill((LIGHTBLUE))  # Fill the screen with light blue color
@@ -528,8 +530,12 @@ class Game:
                     running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
+                        scroll_sound.set_volume(VOLUME)
+                        scroll_sound.play(loops=0)
                         selected_option = (selected_option - 1) % len(options)
                     elif event.key == pygame.K_DOWN:
+                        scroll_sound.set_volume(VOLUME)
+                        scroll_sound.play(loops=0)
                         selected_option = (selected_option + 1) % len(options)
                     elif event.key == pygame.K_RETURN:
                         if options[selected_option] == "Start Game":
