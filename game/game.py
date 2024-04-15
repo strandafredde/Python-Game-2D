@@ -1,6 +1,7 @@
 from os import path
 import sys
 import pygame
+import time
 
 from characters.player.player import *
 from characters.npc.arthur import *
@@ -55,25 +56,26 @@ def draw_player_health(surf, x, y, pct):
     pygame.draw.rect(surf, col, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
+
+
 def text_box(self, text):
     padding = 20  # Space from the sides and the bottom
     text_padding = 10  # Space from the text to the text box
     line_spacing = 5  # Space between lines
+    
+    # Load the image for the text box
+    text_box = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\text_box.png")
 
-    # Create a Surface for the text box
-    text_box = pygame.Surface((WIDTH - 2 * padding, 100), pygame.SRCALPHA)  # Use SRCALPHA to allow transparent background
-    text_box.fill((0, 0, 0, 0))  # Fill the text box with transparent color
+    # Adjust the width of the text box to be 3/5 of the screen width
+    text_box_width = int(WIDTH * 3 / 5)
+    # Calculate the x-coordinate to center the text box
+    text_box_x = (WIDTH - text_box_width) // 2
 
-    # Create a rounded border for the text box
-    border = pygame.Rect(0, 0, WIDTH - 2 * padding, 100)
-    pygame.draw.rect(text_box, BROWN, border, 0, border_radius=10)
-
-    # Create a smaller rounded rectangle for the inner part of the text box
-    inner_rect = pygame.Rect(2, 2, WIDTH - 2 * padding - 4, 96)
-    pygame.draw.rect(text_box, WHITE, inner_rect, 0, border_radius=10)
+    # Scale the image to the desired size
+    text_box = pygame.transform.scale(text_box, (text_box_width, 100))
 
     # Create a font object
-    font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 15)
+    font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 13)
 
     # Split the text into words
     words = text.split(' ')
@@ -95,17 +97,17 @@ def text_box(self, text):
 
     # Render the lines and blit them onto the text box Surface
     for i, line in enumerate(lines):
-        text_surface = font.render(line, True, BLACK)
+        text_surface = font.render(line, True, DARKGREY)
         text_rect = text_surface.get_rect(left=text_padding, top=text_padding + i * (font.get_height() + line_spacing))
         text_box.blit(text_surface, text_rect)
 
     # Blit the text box Surface onto the screen with space from the sides and the bottom
-    self.screen.blit(text_box, (padding, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom# Initialize the game
-
-
+    self.screen.blit(text_box, (text_box_x, HEIGHT - 100 - padding))  # padding pixels space from the sides and the bottom
+    
 class Game:
     def __init__(self):
         pygame.init()
+        self.load_data()
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
@@ -120,6 +122,8 @@ class Game:
         self.text_box_state_arthur = "closed"
         self.text_box_state_arthur_bf_walter = "closed"
         self.text_box_state_merchant = "closed"
+        self.talk_counter_merchant = 0
+        self.text_box_done = False
         self.talk_counter_walter = 0
         self.talk_counter_arthur = 0
         self.talk_counter_arthur_bf_walter = 0
@@ -135,7 +139,11 @@ class Game:
             self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\littleroot_town_music.wav")
             self.sword_swing = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\sword_swing.wav")
             self.coin_pickup = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\coin_pickup.wav")
+            self.talk_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\talk.wav")
+            self.pick_up = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\pick_up.wav")
+            
             self.start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\start_screen.png")
+            
             print("Game data loaded successfully")
         except Exception as e:
             print("Cannot load game data: " + str(e))
@@ -251,7 +259,6 @@ class Game:
 
     def update(self):
         # This method updates the game. It could be used to update counters, check for collisions, etc.
-        
         self.npcs.update()
         self.monsters.update()
         self.all_sprites.update()
@@ -305,6 +312,8 @@ class Game:
             print("Player picked up item")
             self.inventory.add_item(Item(item.name, 1))
             if item.name == "Sword":
+                self.pick_up.set_volume(0.025)
+                self.pick_up.play(loops=0)
                 self.player.has_sword = True
                 print("sword: ", self.player.equipped_sword)
             
@@ -328,7 +337,6 @@ class Game:
             self.fade_active = False
             self.fade_alpha = 0  # Reset the alpha value for the next fade effect
     
-
 
     def draw(self):
         # This method draws the game to the screen.
@@ -395,20 +403,20 @@ class Game:
             if self.talked_to_walter == False:
                 if self.text_box_state_arthur_bf_walter == 'closed':
                     print("Arthur: Hello, I'm Arthur")
-                    text_box(self, "Hey there Mister I'm Arthur!")
+                    self.arthur.draw_text_box("Hey there Mister I'm Arthur!")
                     self.talk_counter_arthur_bf_walter += 1
                 elif self.text_box_state_arthur_bf_walter == 'first':
-                    text_box(self, "Have you met Walter? He lives in the RV down by the river.")
+                    self.arthur.draw_text_box("Have you met Walter? He lives in the RV down by the river.")
             if self.talked_to_walter == True:
                 if self.text_box_state_arthur == 'closed':
-                    text_box(self, "Hey there Mister! I heard you're helping Walter. I have a hazmat suit that you can have. I'll give it to you if you can find me a taco.")
+                    self.arthur.draw_text_box("Hey there Mister! I heard you're helping Walter. I have a hazmat suit that you can have. I'll give it to you if you can find me a taco.")
                     self.talk_counter_arthur += 1
                 elif self.text_box_state_arthur == 'first':
-                    text_box(self, "I need you to get me a taco. You can find it at the local market.")
+                    self.arthur.draw_text_box("I need you to get me a taco. You can find it at the local market.")
                     self.talk_counter_arthur += 1
                 
                 if self.inventory.get_item("TACO"):
-                    text_box(self, "Thanks for the taco! Here's the hazmat suit.")
+                    self.arthur.draw_text_box("Thanks for the taco! Here's the hazmat suit.")
                     self.inventory.remove_item(Item("TACO"))
                     self.inventory.add_item(Item("HAZMAT SUIT"))
                     
@@ -416,23 +424,36 @@ class Game:
         #talking to walter
         if self.talking_walter and self.player.direction == "up":
             if self.text_box_state_walter == 'closed':
-                text_box(self, "Hello, I'm Walter White. I'm a high school chemistry teacher. I have cancer and I need to make money for my family. I'm going to start cooking and i need your help")
+                self.walter.draw_text_box("Hello, I'm Walter White. I'm a high school chemistry teacher. I have cancer and I need to make money for my family. I'm going to start cooking and i need your help")
                 self.talk_counter_walter += 1
             elif self.text_box_state_walter == 'first':
                 self.talked_to_walter = True
-                text_box(self, "I need you to help me gather supplies. I need a gas mask, a hazmat suit, and some flour. Arthur might got a hazmat suit. You can find the flour and gasmask at the local market.")
+                self.walter.draw_text_box("I need you to help me gather supplies. I need a gas mask, a hazmat suit, and some flour. Arthur might have a hazmat suit. You can find the flour and gasmask at the local market.")
                 
      
         #talking to merchant
         if self.talking_merchant and self.player.direction == "up":
             if self.text_box_state_merchant == 'closed':
-                #text_box(self, "Welcome to my shop! I have a variety of items for sale. What can I get you?")
+                self.merchant.draw_text_box("Welcome to my shop! I have a variety of items for sale. What can I get you?")
+                self.talk_counter_merchant += 1
+            
+            if self.text_box_state_merchant == 'menu':
                 self.merchant.display_shop_menu()
 
+        #Resets varaiables for talking to npcs when not talking to them
         if not self.player.direction == "up":
             self.talking_arthur = False
             self.talking_walter = False
             self.talking_merchant = False
+
+        if not self.talking_arthur:
+            self.arthur.counters = []
+
+        if not self.talking_walter:
+            self.walter.counters = []
+
+        if not self.talking_merchant:
+            self.merchant.counters = []
 
         #draw player health
         draw_player_health(self.screen, 10, 10, self.player.health / 100)
@@ -688,6 +709,7 @@ class Game:
                             select_sound.set_volume(VOLUME + EXTRA_VOLUME)
                             select_sound.play(loops=0)
                             VOLUME -= 0.01
+    
     def events(self):
          # This method handles events.
         # It could handle input from the player, respond to game events, etc.
@@ -712,6 +734,7 @@ class Game:
                         print(self.talk_counter_walter)
                         if self.text_box_state_walter == 'closed':
                             self.talking_walter = True
+                            self.walter.counters = []
                             if self.talk_counter_walter >= 1:
                                 self.text_box_state_walter = 'first'
                         elif self.text_box_state_walter == 'first':
@@ -719,7 +742,16 @@ class Game:
                             
                     #talking to merchant
                     if self.near_merchant:
-                        self.talking_merchant = not self.talking_merchant
+                        if self.text_box_state_merchant == 'closed':
+                            self.talking_merchant = True
+                            if self.talk_counter_merchant >= 1:
+                                print(self.talk_counter_merchant)
+                                self.text_box_state_merchant = 'menu'
+                        elif self.text_box_state_merchant == 'menu':
+                            self.talking_merchant = not self.talking_merchant
+                            self.text_box_state_merchant = 'closed'
+                            self.talk_counter_merchant = 0
+
                 if event.key == pygame.K_p:
                     print("adding item")
                     self.inventory.add_item(Item("potion"))
