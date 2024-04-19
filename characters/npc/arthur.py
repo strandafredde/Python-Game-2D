@@ -21,8 +21,9 @@ class Arthur(pygame.sprite.Sprite):
         self.counters = []
         self.talk_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\talk.wav")
         self.talk_sound.set_volume(VOLUME)
-
+        self.play_sound = False
     def draw_text_box(self, message):
+        self.game.play_sound = False
         padding = 20  # Space from the sides and the bottom
         text_padding = 10  # Space from the text to the text box
         line_spacing = 5  # Space between lines
@@ -50,6 +51,9 @@ class Arthur(pygame.sprite.Sprite):
         if not self.counters:
             self.counters = [0 for _ in lines]
 
+        if not self.play_sound:
+            self.play_sound = True
+            self.talk_sound.play(-1) 
         # Render and blit each line
         for i, line in enumerate(lines):
             # Only start rendering the next line when the current line is fully rendered
@@ -62,6 +66,10 @@ class Arthur(pygame.sprite.Sprite):
             snip = font.render(line[:self.counters[i] // speed], True, DARKGREY)
             self.game.screen.blit(snip, (text_box_x + text_padding, HEIGHT - 100 - padding + text_padding + i * (font.get_height() + line_spacing)))
         
+        if all(counter >= speed * len(line) for counter, line in zip(self.counters, lines)):
+            self.talk_sound.stop()
+            self.play_sound = False
+
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
     

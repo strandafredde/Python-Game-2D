@@ -131,6 +131,7 @@ class Game:
         self.mouse_button_down = False
         self.button_click_in_progress = False
         self.buttons = []
+        self.play_talk_sound = False
 
     def load_data(self):
         # Load all game data. This method is called when the game is started.
@@ -241,6 +242,7 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
 
+
         #self.town_music.set_volume(VOLUME)
         #self.town_music.play(loops=-1)
 
@@ -306,7 +308,11 @@ class Game:
             self.talking_walter = False
             self.near_walter = False
             self.near_merchant = False
-        
+
+            self.arthur.talk_sound.stop()
+            self.walter.talk_sound.stop()
+            self.merchant.talk_sound.stop()
+            
         item_pickup = pygame.sprite.spritecollide(self.player, self.items, False, collide_hit_rect)
         for item in item_pickup:
             print("Player picked up item")
@@ -322,7 +328,6 @@ class Game:
                 self.coin_pickup.set_volume(0.025)
                 self.coin_pickup.play(loops=0)
             item.kill()
-        
         
 
     def fade_out(self):
@@ -638,7 +643,6 @@ class Game:
                         select_sound.play(loops=0)
                         running = False
 
-
     def show_options_screen(self):
         global VOLUME
 
@@ -686,10 +690,14 @@ class Game:
                         scroll_sound.set_volume(VOLUME + EXTRA_VOLUME)
                         scroll_sound.play(loops=0)
                         VOLUME += 0.01
+                        if VOLUME < 0.001:
+                            VOLUME = 0                        
                     elif rect_minus.collidepoint(mouse_pos) and VOLUME > 0.001:  # Minus button clicked
                         scroll_sound.set_volume(VOLUME + EXTRA_VOLUME)
                         scroll_sound.play(loops=0)
                         VOLUME -= 0.01
+                        if VOLUME < 0.001:
+                            VOLUME = 0
                     elif rect_back.collidepoint(mouse_pos):  # Back button
                         select_sound.set_volume(VOLUME + EXTRA_VOLUME)
                         select_sound.play(loops=0)
@@ -704,12 +712,16 @@ class Game:
                             select_sound.set_volume(VOLUME + EXTRA_VOLUME)
                             select_sound.play(loops=0)
                             VOLUME += 0.01
+                            if VOLUME < 0.001:
+                                VOLUME = 0
+
                     if event.key == pygame.K_DOWN:
                         if VOLUME > 0:
                             select_sound.set_volume(VOLUME + EXTRA_VOLUME)
                             select_sound.play(loops=0)
                             VOLUME -= 0.01
-    
+                            if VOLUME < 0.001:
+                                VOLUME = 0
     def events(self):
          # This method handles events.
         # It could handle input from the player, respond to game events, etc.

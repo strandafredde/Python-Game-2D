@@ -27,6 +27,10 @@ class Merchant(pygame.sprite.Sprite):
         self.close_button_rect = None
         self.counters = []
 
+        self.talk_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\talk.wav")
+        self.talk_sound.set_volume(VOLUME)
+        self.play_sound = False
+
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
 
@@ -55,6 +59,10 @@ class Merchant(pygame.sprite.Sprite):
         lines = textwrap.wrap(message, width=char_per_line)
         self.game.screen.blit(text_box, (text_box_x, HEIGHT - 100 - padding))
 
+        if not self.play_sound:
+            self.play_sound = True
+            self.talk_sound.play(-1) 
+        
         if not self.counters:
             self.counters = [0 for _ in lines]
 
@@ -70,6 +78,9 @@ class Merchant(pygame.sprite.Sprite):
             snip = font.render(line[:self.counters[i] // speed], True, DARKGREY)
             self.game.screen.blit(snip, (text_box_x + text_padding, HEIGHT - 100 - padding + text_padding + i * (font.get_height() + line_spacing)))
         
+        if all(counter >= speed * len(line) for counter, line in zip(self.counters, lines)):
+            self.talk_sound.stop()
+            self.play_sound = False
 
     def draw_text(self, text, surface, position, size, color, alignment="nw"):
             font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", size)  # Use the default font
