@@ -52,8 +52,8 @@ class Walter(pygame.sprite.Sprite):
         if not self.counters:
             self.counters = [0 for _ in lines]
 
-        if not self.play_sound:
-            self.play_sound = True
+        if not self.play_sound: # Play the sound on repeat only once
+            self.play_sound = True 
             self.talk_sound.play(-1) 
         # Render and blit each line
         for i, line in enumerate(lines):
@@ -70,7 +70,7 @@ class Walter(pygame.sprite.Sprite):
         if all(counter >= speed * len(line) for counter, line in zip(self.counters, lines)):
             self.talk_sound.stop()
             self.play_sound = False
-            
+
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
     

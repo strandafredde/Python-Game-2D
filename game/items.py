@@ -60,4 +60,86 @@ class Coin(pygame.sprite.Sprite):
         print(self.image)
         print(self.rect.midbottom)
     def draw(self):
-        pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))    
+        pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+
+class Taco(pygame.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.items
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.name = "Taco"
+        original_image = pygame.image.load("assets/items/taco.png")
+        self.image = original_image
+        self.rect = self.image.get_rect()
+        self.width = 32
+        self.height = 32
+        print(self.image)
+        print(self.rect.midbottom)
+    def draw(self):
+        pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+
+class Flour(pygame.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.items
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.name = "Flour"
+        original_image = pygame.image.load("assets/items/flour.png")
+        self.image = original_image
+        self.rect = self.image.get_rect() 
+        self.width = 32
+        self.height = 32
+        print(self.image)
+        print(self.rect.midbottom)
+    def draw(self):
+        pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+
+class GasMask(pygame.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.items
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.name = "GasMask"
+        original_image = pygame.image.load("assets/items/gas_mask.png")
+        self.image = original_image 
+        self.rect = self.image.get_rect()
+        self.width = 32
+        self.height = 32
+        print(self.image)
+        print(self.rect.midbottom)
+    def draw(self):
+        pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+
+class HazmatSuit(pygame.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.items
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.name = "HazmatSuit"
+        original_image = pygame.image.load("assets/items/hazmat_suit.png")
+        self.image = original_image
+        self.rect = self.image.get_rect()
+        self.width = 32
+        self.height = 32
+        print(self.image)
+        print(self.rect.midbottom)
+    def draw(self):
+        pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+
+class HpPotion(pygame.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.items
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.name = "HpPotion"
+        original_image = pygame.image.load("assets/items/hp_potion.png")
+        self.image = original_image
+        self.rect = self.image.get_rect()
+        self.width = 32
+        self.height = 32
+        print(self.image)
+        print(self.rect.midbottom)
+        
+    def draw(self):
+        pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+

@@ -22,6 +22,7 @@ class Arthur(pygame.sprite.Sprite):
         self.talk_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\talk.wav")
         self.talk_sound.set_volume(VOLUME)
         self.play_sound = False
+
     def draw_text_box(self, message):
         self.game.play_sound = False
         padding = 20  # Space from the sides and the bottom
@@ -51,9 +52,10 @@ class Arthur(pygame.sprite.Sprite):
         if not self.counters:
             self.counters = [0 for _ in lines]
 
-        if not self.play_sound:
+        if not self.play_sound: # Play the sound on repeat only once
             self.play_sound = True
             self.talk_sound.play(-1) 
+            
         # Render and blit each line
         for i, line in enumerate(lines):
             # Only start rendering the next line when the current line is fully rendered

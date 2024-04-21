@@ -107,6 +107,7 @@ def text_box(self, text):
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init(channels=64)
         self.load_data()
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -132,12 +133,14 @@ class Game:
         self.button_click_in_progress = False
         self.buttons = []
         self.play_talk_sound = False
-
+        self.play_background_music = False
+        self.play_town_music = False
+        self.has_taco = False
     def load_data(self):
         # Load all game data. This method is called when the game is started.
         try:
             self.open_door = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\door_open.wav")
-            self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\littleroot_town_music.wav")
+            self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\town-2.wav")
             self.sword_swing = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\sword_swing.wav")
             self.coin_pickup = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\coin_pickup.wav")
             self.talk_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\talk.wav")
@@ -243,8 +246,7 @@ class Game:
         self.draw_debug = False
 
 
-        #self.town_music.set_volume(VOLUME)
-        #self.town_music.play(loops=-1)
+
 
     def run(self):
         # This is the main game loop. It continues to run as long as the game is active.
@@ -268,8 +270,8 @@ class Game:
         enter_doors = pygame.sprite.spritecollide(self.player, self.doors, False, collide_hit_rect)
         for door in enter_doors:  # Iterate over all collided doors
             print("Player collided with door")
-            if not self.door_opened:
-                self.open_door.set_volume(VOLUME)
+            if not self.door_opened: # Prevents the sound from playing multiple times
+                self.open_door.set_volume(VOLUME - 0.003)
                 self.open_door.play(loops=0)
                 self.door_opened = True
             
@@ -280,8 +282,8 @@ class Game:
         if not enter_doors:
             self.door_opened = False
             
-        if self.player.swinging_sword:
-            if not self.swung_sword:
+        if self.player.swinging_sword: # Plays the sword swing sound when the player swings the sword
+            if not self.swung_sword: # Prevents the sound from playing multiple times
                 self.sword_swing.set_volume(0.05)
                 self.sword_swing.play(loops=0)
                 self.swung_sword = True
@@ -300,7 +302,7 @@ class Game:
                 if npc == self.merchant:
                     self.near_merchant = True
         
-        if not talk_to_npc:
+        if not talk_to_npc: # Resets most flags when not talking to npcs
             self.near_arthur = False
             self.talking_arthur = False
             self.talking_merchant = False
@@ -312,12 +314,12 @@ class Game:
             self.arthur.talk_sound.stop()
             self.walter.talk_sound.stop()
             self.merchant.talk_sound.stop()
-            
+
         item_pickup = pygame.sprite.spritecollide(self.player, self.items, False, collide_hit_rect)
         for item in item_pickup:
             print("Player picked up item")
-            self.inventory.add_item(Item(item.name, 1))
             if item.name == "Sword":
+                self.inventory.add_item(Item(item.name, item.image, 1))
                 self.pick_up.set_volume(0.025)
                 self.pick_up.play(loops=0)
                 self.player.has_sword = True
@@ -327,8 +329,20 @@ class Game:
                 self.player.money += 1
                 self.coin_pickup.set_volume(0.025)
                 self.coin_pickup.play(loops=0)
+            
+            else:
+                self.inventory.add_item(Item(item.name, item.image, 1))
+                self.pick_up.set_volume(0.025)
+                self.pick_up.play(loops=0)
             item.kill()
         
+        if not self.play_town_music:
+            self.town_music.set_volume(VOLUME)
+            self.town_music.play(loops=-1)
+            self.play_town_music = True
+
+        if self.inventory.get_item("Taco"):
+            self.has_taco = True
 
     def fade_out(self):
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
@@ -402,7 +416,10 @@ class Game:
         
         if self.fade_active:
             self.fade_out()
+        #inventory
+        self.inventory.draw_inventory(self.screen)
 
+        # ================== talking to npcs ==================
         #talking to arthur
         if self.talking_arthur and self.player.direction == "up":
             if self.talked_to_walter == False:
@@ -413,17 +430,23 @@ class Game:
                 elif self.text_box_state_arthur_bf_walter == 'first':
                     self.arthur.draw_text_box("Have you met Walter? He lives in the RV down by the river.")
             if self.talked_to_walter == True:
-                if self.text_box_state_arthur == 'closed':
-                    self.arthur.draw_text_box("Hey there Mister! I heard you're helping Walter. I have a hazmat suit that you can have. I'll give it to you if you can find me a taco.")
-                    self.talk_counter_arthur += 1
-                elif self.text_box_state_arthur == 'first':
-                    self.arthur.draw_text_box("I need you to get me a taco. You can find it at the local market.")
-                    self.talk_counter_arthur += 1
-                
-                if self.inventory.get_item("TACO"):
-                    self.arthur.draw_text_box("Thanks for the taco! Here's the hazmat suit.")
-                    self.inventory.remove_item(Item("TACO"))
-                    self.inventory.add_item(Item("HAZMAT SUIT"))
+                if self.has_taco == False:
+                    if self.text_box_state_arthur == 'closed':
+                        self.arthur.draw_text_box("Hey there Mister! I heard you're helping Walter. I have a hazmat suit that you can have. I'll give it to you if you can find me a taco.")
+                        self.talk_counter_arthur += 1
+                    elif self.text_box_state_arthur == 'first':
+                        self.arthur.draw_text_box("I need you to get me a taco. You can find it at the local market.")
+                        self.talk_counter_arthur += 1
+                else:   
+                    if self.inventory.get_item("Taco"):
+                        self.arthur.draw_text_box("Thanks for the taco! Here's the hazmat suit.")
+                        hazmatSuit = HazmatSuit(self)
+                        self.inventory.remove_item(Item("Taco", None, 1))
+                        
+                        self.inventory.add_item(Item(hazmatSuit.name, hazmatSuit.image, 1))
+
+                    else:
+                        self.arthur.draw_text_box("Thanks for the taco mister")
                     
 
         #talking to walter
@@ -443,8 +466,10 @@ class Game:
                 self.talk_counter_merchant += 1
             
             if self.text_box_state_merchant == 'menu':
+                self.merchant.talk_sound.stop()
+                self.merchant.play_sound = False
                 self.merchant.display_shop_menu()
-
+                
         #Resets varaiables for talking to npcs when not talking to them
         if not self.player.direction == "up":
             self.talking_arthur = False
@@ -461,10 +486,7 @@ class Game:
             self.merchant.counters = []
 
         #draw player health
-        draw_player_health(self.screen, 10, 10, self.player.health / 100)
-
-        self.inventory.draw(self.screen)
-
+        draw_player_health(self.screen, 10, 10, self.player.health / 100)    
         pygame.display.flip()  # Update the display
 
     def draw_text(self, text, surface, position, size, color, alignment="nw"):
@@ -505,6 +527,8 @@ class Game:
         surface.blit(text_surface, text_rect)
 
     def show_start_screen(self):
+        # This method displays the start screen of the game.
+        
         start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
@@ -515,8 +539,13 @@ class Game:
 
         scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
         select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
+        self.background_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\start_screen_music.wav")
         running = True
         while running:
+            if not self.play_background_music:
+                self.background_music.play(loops=-1)
+                self.play_background_music = True
+            self.background_music.set_volume(VOLUME)
             self.screen.fill((LIGHTBLUE))  # Fill the screen with light blue color
             self.screen.blit(self.start_img, (0, 0))  # Draw the start screen image
 
@@ -567,6 +596,16 @@ class Game:
                         if options[selected_option] == "Start Game":
                             select_sound.set_volume(VOLUME + EXTRA_VOLUME)
                             select_sound.play(loops=0)
+                            # Fade-in effect
+                            self.background_music.stop()
+                            fade_surface = pygame.Surface((WIDTH, HEIGHT))  # Create a new surface
+                            fade_surface.fill((0, 0, 0))  # Fill the surface with black color
+                            for alpha in range(0, 255, 5):  # Increase the alpha value gradually
+                                fade_surface.set_alpha(alpha)  # Set the alpha value of the surface
+                                self.screen.blit(fade_surface, (0, 0))  # Draw the surface on the screen
+                                pygame.display.update()  # Update the display
+                                pygame.time.delay(50)  # Delay for a while
+                                pygame.event.clear()
                             running = False
                         elif options[selected_option] == "Options":
                             select_sound.set_volume(VOLUME + EXTRA_VOLUME)
@@ -586,6 +625,16 @@ class Game:
                     if rect_start.collidepoint(mouse_pos):
                         select_sound.set_volume(VOLUME + EXTRA_VOLUME)
                         select_sound.play(loops=0)
+                        # Fade-in effect
+                        self.background_music.stop()
+                        fade_surface = pygame.Surface((WIDTH, HEIGHT))  # Create a new surface
+                        fade_surface.fill((0, 0, 0))  # Fill the surface with black color
+                        for alpha in range(0, 255, 5):  # Increase the alpha value gradually
+                            fade_surface.set_alpha(alpha)  # Set the alpha value of the surface
+                            self.screen.blit(fade_surface, (0, 0))  # Draw the surface on the screen
+                            pygame.display.update()  # Update the display
+                            pygame.time.delay(50)  # Delay for a while
+                            pygame.event.clear() 
                         running = False
                     elif rect_options.collidepoint(mouse_pos):
                         select_sound.set_volume(VOLUME + EXTRA_VOLUME)
@@ -658,6 +707,7 @@ class Game:
 
         running = True
         while running:
+            self.background_music.set_volume(VOLUME)
             self.screen.blit(self.start_img, (0, 0))  # Draw the start screen image
 
             self.draw_text(">", self.screen, [15, 15], 25, LIGHTBLUE, "nw")
@@ -722,6 +772,115 @@ class Game:
                             VOLUME -= 0.01
                             if VOLUME < 0.001:
                                 VOLUME = 0
+    
+    def show_pause_screen(self):
+
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
+        pause_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\pause_screen.png")
+        x = WIDTH // 2
+        y1 = (HEIGHT // 2 - pause_img.get_height() // 2) + 50
+        
+        options = ["Resume", "Options", "Controls", "Quit"]
+        selected_option = 0
+        running = True
+        while running:
+
+            self.screen.blit(pause_img, (WIDTH // 2 - pause_img.get_width() // 2, HEIGHT // 2 - pause_img.get_height() // 2))
+
+            self.draw_text("Paused", self.screen, [x, y1 + 40], 40, DARKGREY, "center")
+  
+            for i, option in enumerate(options):
+                x = WIDTH // 2
+                y = (HEIGHT // 2 - 40) + i * 70
+                self.draw_text(option, self.screen, [x, y], 30, DARKGREY, "center")
+                
+                if i == selected_option:
+                    text_width, _ = font.size(option)
+                    if option == "Resume":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, DARKGREY, "center")          
+                    if option == "Options":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, DARKGREY, "center")        
+                    if option == "Controls":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, DARKGREY, "center")
+                    if option == "Quit":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, DARKGREY, "center")
+
+            
+            rect_resume = pygame.Rect(WIDTH // 2 - 90, (HEIGHT // 2 - 58), 180, 32)
+            rect_options = pygame.Rect(WIDTH // 2 - 105, (HEIGHT // 2 - 58) + 70, 210, 32)
+            rect_controls = pygame.Rect(WIDTH // 2 - 120, (HEIGHT // 2 - 58) + 140, 240, 32)
+            rect_quit = pygame.Rect(WIDTH // 2 - 62, (HEIGHT // 2 - 58) + 210, 120, 32)
+
+            # pygame.draw.rect(self.screen, BLACK, rect_resume, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_options, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_controls, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_quit, 2)
+            
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    self.quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        running = False
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+                    if event.key == pygame.K_UP:
+                        selected_option = (selected_option - 1) % len(options)
+                    if event.key == pygame.K_DOWN:
+                        selected_option = (selected_option + 1) % len(options)
+                    if event.key == pygame.K_RETURN:
+                        if options[selected_option] == "Resume":
+                            running = False
+                        if options[selected_option] == "Options":
+                            self.show_pause_options_screen()
+                        if options[selected_option] == "Controls":
+                            self.show_controls_screen()
+                        if options[selected_option] == "Quit":
+                            self.quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if rect_resume.collidepoint(mouse_pos):
+                        running = False
+                    if rect_options.collidepoint(mouse_pos):
+                        self.show_pause_options_screen()
+                    if rect_controls.collidepoint(mouse_pos):
+                        self.show_controls_screen()
+                    if rect_quit.collidepoint(mouse_pos):
+                        self.quit()
+    
+    def show_pause_options_screen(self):
+        
+        controls_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\pause_screen.png")
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
+        
+        x = WIDTH // 2
+        y1 = (HEIGHT // 2 - controls_img.get_height() // 2) + 50
+        
+        running = True
+        while running:
+            self.screen.blit(controls_img, (WIDTH // 2 - controls_img.get_width() // 2, HEIGHT // 2 - controls_img.get_height() // 2))
+            
+            self.draw_text("Options", self.screen, [WIDTH // 2, HEIGHT // 4], 50, LIGHTBLUE, "center")
+
+            for events in pygame.event.get():
+                if events.type == pygame.QUIT:
+                    running = False
+                    self.quit()
+                if events.type == pygame.KEYDOWN:
+                    if events.key == pygame.K_RETURN:
+                        running = False
+                if events.type == pygame.MOUSEBUTTONDOWN:
+                    running = False
+
+
+    def show_pause_controls_screen(self):
+        pass
+
+    def show_game_over_screen(self):
+        pass
+
     def events(self):
          # This method handles events.
         # It could handle input from the player, respond to game events, etc.
@@ -730,7 +889,7 @@ class Game:
                 self.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.quit()
+                    self.show_pause_screen()
                 if event.key == pygame.K_h:
                     self.draw_debug = not self.draw_debug
                 if event.key == pygame.K_x:
@@ -763,11 +922,6 @@ class Game:
                             self.talking_merchant = not self.talking_merchant
                             self.text_box_state_merchant = 'closed'
                             self.talk_counter_merchant = 0
-
-                if event.key == pygame.K_p:
-                    print("adding item")
-                    self.inventory.add_item(Item("potion"))
-                
 
                 if event.key == pygame.K_1:
                     if self.inventory.get_item("Sword") and self.player.has_sword:

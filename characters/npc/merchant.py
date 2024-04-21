@@ -2,7 +2,7 @@ import pygame
 import textwrap
 from game.inventory import *
 from game.settings import *
-
+from game.items import *
 class Merchant(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.npcs
@@ -30,6 +30,8 @@ class Merchant(pygame.sprite.Sprite):
         self.talk_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\talk.wav")
         self.talk_sound.set_volume(VOLUME)
         self.play_sound = False
+
+        self.skip_text = False
 
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
@@ -59,13 +61,13 @@ class Merchant(pygame.sprite.Sprite):
         lines = textwrap.wrap(message, width=char_per_line)
         self.game.screen.blit(text_box, (text_box_x, HEIGHT - 100 - padding))
 
-        if not self.play_sound:
+        if not self.play_sound: # Play the sound on repeat only once
             self.play_sound = True
             self.talk_sound.play(-1) 
         
         if not self.counters:
             self.counters = [0 for _ in lines]
-
+        
         # Render and blit each line
         for i, line in enumerate(lines):
             # Only start rendering the next line when the current line is fully rendered
@@ -171,37 +173,39 @@ class Merchant(pygame.sprite.Sprite):
             if self.game.player.money >= 5:
                 self.buying_sound.play()
                 self.game.player.money -= 5
-                self.game.inventory.add_item(Item("FLOUR"))
+                taco = Taco(self.game)
+                print(taco.name, taco.image)
+                
+                self.game.inventory.add_item(Item(taco.name, taco.image, 1))
             
             print("Money: ", self.game.player.money)
-            print("Buy button clicked: FLOUR")
 
         elif self.flour_button_rect is not None and self.flour_button_rect.collidepoint(pos):
             if self.game.player.money >= 5:
                 self.buying_sound.play()
                 self.game.player.money -= 5
-                self.game.inventory.add_item(Item("TACO"))
-
+                flour = Flour(self.game)
+                self.game.inventory.add_item(Item(flour.name, flour.image, 1))
             print("Money: ", self.game.player.money)
-            print("Buy button clicked: TACO")
 
         elif self.gas_mask_button_rect is not None and self.gas_mask_button_rect.collidepoint(pos):
             if self.game.player.money >= 2:
                 self.buying_sound.play()
                 self.game.player.money -= 2
-                self.game.inventory.add_item(Item("HP POTION"))
-            
+                gasMask = GasMask(self.game)
+                print(gasMask.name, gasMask.image)
+                self.game.inventory.add_item(Item(gasMask.name, gasMask.image, 1))
             print("Money: ", self.game.player.money)
-            print("Buy button clicked: HP POTION")
         
         elif self.hp_potion_button_rect is not None and self.hp_potion_button_rect.collidepoint(pos):
             if self.game.player.money >= 10:
                 self.buying_sound.play()
                 self.game.player.money -= 10
-                self.game.inventory.add_item(Item("GAS MASK"))
+                hpPotion = HpPotion(self.game)
+                print(hpPotion.name, hpPotion.image)
+                self.game.inventory.add_item(Item(hpPotion.name, hpPotion.image, 1))
             
             print("Money: ", self.game.player.money)
-            print("Buy button clicked: GAS MASK")
 
         elif self.close_button_rect is not None and self.close_button_rect.collidepoint(pos):
             self.select_sound.set_volume(VOLUME)
