@@ -72,7 +72,11 @@ class Player(pygame.sprite.Sprite):
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
         
-    
+    def draw_money(self):
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 20)
+        money_text = font.render(f"Money: {self.game.player.money}", True, LIGHTBROWN)
+        self.game.screen.blit(money_text, (10, 50))
+        
     def swing_sword(self):
     # Create a new hit rectangle for the sword
         if self.direction == "up":

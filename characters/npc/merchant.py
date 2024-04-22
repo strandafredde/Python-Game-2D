@@ -36,6 +36,8 @@ class Merchant(pygame.sprite.Sprite):
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
 
+
+
     def draw_text_box(self, message):
         padding = 20  # Space from the sides and the bottom
         text_padding = 10  # Space from the text to the text box
