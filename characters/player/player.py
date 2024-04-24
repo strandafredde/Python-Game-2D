@@ -35,7 +35,7 @@ class Player(pygame.sprite.Sprite):
         self.swinging_sword = False
         self.health = 100
         self.sword_size = 48
-
+        
     
 
     def load_assets(self):
@@ -74,7 +74,7 @@ class Player(pygame.sprite.Sprite):
         
     def draw_money(self):
         font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 20)
-        money_text = font.render(f"Money: {self.game.player.money}", True, LIGHTBROWN)
+        money_text = font.render(f"Money: {self.game.player.money}", True, LIGHTBLUE)
         self.game.screen.blit(money_text, (10, 50))
         
     def swing_sword(self):

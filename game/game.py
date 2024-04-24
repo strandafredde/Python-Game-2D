@@ -136,6 +136,10 @@ class Game:
         self.play_background_music = False
         self.play_town_music = False
         self.has_taco = False
+        self.has_all_items = False
+        self.draw_sword = False
+
+
     def load_data(self):
         # Load all game data. This method is called when the game is started.
         try:
@@ -156,7 +160,7 @@ class Game:
     def new(self):
         # Initialize a new game. This method is called when a new game is started.
         self.load_data()
-        self.inventory = Inventory()
+        self.inventory = Inventory(self)
 
         # Create sprite groups which is used to draw and update sprites
         self.all_sprites = pygame.sprite.Group()
@@ -325,7 +329,7 @@ class Game:
                 self.player.has_sword = True
                 print("sword: ", self.player.equipped_sword)
             
-            if item.name == "Coin":
+            elif item.name == "Coin":
                 self.player.money += 1
                 self.coin_pickup.set_volume(VOLUME)
                 self.coin_pickup.play(loops=0)
@@ -343,6 +347,9 @@ class Game:
 
         if self.inventory.get_item("Taco"):
             self.has_taco = True
+
+        if self.inventory.get_item("Hazmat Suit") and self.inventory.get_item("Gas Mask") and self.inventory.get_item("Flour"):
+            self.has_all_items = True
 
     def fade_out(self):
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
@@ -451,7 +458,13 @@ class Game:
 
         #talking to walter
         if self.talking_walter and self.player.direction == "up":
-            if self.text_box_state_walter == 'closed':
+            if self.has_all_items:
+                self.walter.draw_text_box("Thanks for getting all the items. I can start cooking now.")
+                self.inventory.remove_item(Item("Hazmat Suit", None, 1))
+                self.inventory.remove_item(Item("Gas Mask", None, 1))
+                self.inventory.remove_item(Item("Flour", None, 1))
+
+            elif self.text_box_state_walter == 'closed':
                 self.walter.draw_text_box("Hello, I'm Walter White. I'm a high school chemistry teacher. I have cancer and I need to make money for my family. I'm going to start cooking and i need your help")
                 self.talk_counter_walter += 1
             elif self.text_box_state_walter == 'first':

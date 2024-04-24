@@ -7,7 +7,8 @@ class Item:
         self.quantity = quantity
 
 class Inventory:
-    def __init__(self):
+    def __init__(self, game):
+        self.game = game
         self.items = []
 
     def add_item(self, item):
@@ -42,12 +43,17 @@ class Inventory:
 
     def draw_inventory(self, screen):
         for index, i in enumerate(self.items):
-            font = pygame.font.Font(None, 36)
-            text = font.render(f"{i.name}: {i.quantity}", True, (255, 255, 255))
+            font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 10)
+            text = font.render(f"{i.quantity}", True, (255, 255, 255))
             image = i.image
             image = pygame.transform.scale(image, (48, 48))
-            screen.blit(image, (WIDTH//5 + 64 * index, HEIGHT - 64))
-        
+            pygame.draw.rect(screen, (LIGHTGREY), (WIDTH//4 - 8 + 64 * index, HEIGHT - 72, 64, 64))
+            if(self.game.player.equipped_sword and i.name == "Sword"):
+                print("Drawing equipped sword slot")
+                pygame.draw.rect(screen, (LIGHTYELLOW), (WIDTH//4 - 8 + 64 * index, HEIGHT - 72, 64, 64))
 
+            screen.blit(image, (WIDTH//4 + 64 * index, HEIGHT - 64))
+            pygame.draw.rect(screen, (DARKGREY), (WIDTH//4 - 8 + 64 * index, HEIGHT - 72, 64, 64), 2)
+            screen.blit(text, (WIDTH//4 + 40 + 64 * index, HEIGHT - 24))
     def __str__(self):
         return str(self.items)
