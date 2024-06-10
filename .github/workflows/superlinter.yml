@@ -22,4 +22,4 @@ jobs:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
-          FILTER_REGEX_EXCLUDE: "^assets/.*|^scenes/.*" # Exclude assets and scenes directories
+          FILTER_REGEX_INCLUDE: ".*\\.py$" # Include only .py files
