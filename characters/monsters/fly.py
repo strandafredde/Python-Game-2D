@@ -5,7 +5,6 @@ from spritesheet import *
 from game.settings import *
 
 
-
 class Fly(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.load_assets()
@@ -17,12 +16,12 @@ class Fly(pygame.sprite.Sprite):
         self.hit_rect = self.rect.inflate(-20, -20)
         self.x = x * 2
         self.y = y * 2
-        self.rect.midbottom= (self.x, self.y)
+        self.rect.midbottom  = (self.x, self.y)
         self.width = 64
         self.height = 64
         self.frame_speed = 40
         self.counter = 0
-        self.health= 20
+        self.health = 20
         self.max_health = 20
         self.dying_sound = False
         self.last_hit_time = 0
@@ -33,7 +32,9 @@ class Fly(pygame.sprite.Sprite):
     
     def load_assets(self): 
         try:
-            self.fly_dying = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\fly_dying.wav")
+            self.fly_dying = pygame.mixer.Sound(
+                "e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\fly_dying.wav"
+            )
             self.flying = load_spritesheet("assets/npc/fly.png", 32, 32, 0, 3)
             self.dying = load_spritesheet("assets/npc/fly.png", 32, 32, 3, 3)
             self.hurt = pygame.mixer.Sound("assets/sounds/hurt.wav")
@@ -41,15 +42,13 @@ class Fly(pygame.sprite.Sprite):
         except Exception as e:
             print("Cannot load game data: " + str(e))
 
-
     def draw_health(self):
         # Create a separate surface for the health bar if it doesn't exist
-        if not hasattr(self, 'health_bar_surface'):
+        if not hasattr(self, "health_bar_surface"):
             self.health_bar_surface = pygame.Surface((self.rect.width, 9))
-        
         # Fill the health bar surface with red
         self.health_bar_surface.fill((255, 0, 0))  # Red color
-        
+    
         # Calculate the width of the green portion based on health percentage
         green_width = int(self.rect.width * (self.health / self.max_health))
         
@@ -59,9 +58,8 @@ class Fly(pygame.sprite.Sprite):
         # Blit the health bar surface onto self.image
         self.image.blit(self.health_bar_surface, (0, 0))
 
-
     def update(self):
-        #Updates info about the fly
+        # Updates info about the fly
         self.hit_rect.center = self.rect.center
         if self.health > 0:
             self.move_towards_player()
@@ -78,7 +76,10 @@ class Fly(pygame.sprite.Sprite):
                 self.fly_dying.set_volume(0.1)
                 self.fly_dying.play()
                 self.dying_sound = True
-            elif self.dying_counter == len(self.dying) - 1 and pygame.time.get_ticks() - self.death_time > 500:
+            elif (
+                self.dying_counter == len(self.dying) - 1 
+                and pygame.time.get_ticks() - self.death_time > 500
+            ):
                 self.dying_counter = 0
                 self.kill()
                 Coin(self.game, self.rect.centerx, self.rect.centery)
