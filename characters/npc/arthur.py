@@ -3,6 +3,7 @@ import time
 import textwrap
 from game.settings import *
 
+
 class Arthur(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.npcs
@@ -78,3 +79,4 @@ class Arthur(pygame.sprite.Sprite):
 
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
+        

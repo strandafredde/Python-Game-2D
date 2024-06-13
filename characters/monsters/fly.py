@@ -12,11 +12,11 @@ class Fly(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = self.flying[0]
-        self.rect = self.image.get_rect() 
+        self.rect = self.image.get_rect()
         self.hit_rect = self.rect.inflate(-20, -20)
         self.x = x * 2
         self.y = y * 2
-        self.rect.midbottom  = (self.x, self.y)
+        self.rect.midbottom = (self.x, self.y)
         self.width = 64
         self.height = 64
         self.frame_speed = 40
@@ -48,13 +48,10 @@ class Fly(pygame.sprite.Sprite):
             self.health_bar_surface = pygame.Surface((self.rect.width, 9))
         # Fill the health bar surface with red
         self.health_bar_surface.fill((255, 0, 0))  # Red color
-    
         # Calculate the width of the green portion based on health percentage
         green_width = int(self.rect.width * (self.health / self.max_health))
-        
         # Draw the green portion representing health
         pygame.draw.rect(self.health_bar_surface, (0, 255, 0), (0, 0, green_width, 9))
-        
         # Blit the health bar surface onto self.image
         self.image.blit(self.health_bar_surface, (0, 0))
 
@@ -77,7 +74,7 @@ class Fly(pygame.sprite.Sprite):
                 self.fly_dying.play()
                 self.dying_sound = True
             elif (
-                self.dying_counter == len(self.dying) - 1 
+                self.dying_counter == len(self.dying) - 1
                 and pygame.time.get_ticks() - self.death_time > 500
             ):
                 self.dying_counter = 0
@@ -94,20 +91,22 @@ class Fly(pygame.sprite.Sprite):
                 self.last_hit_time = now
         if self.is_hit:
             if self.hit_time is None:
-                self.hit_time = pygame.time.get_ticks()  # Set the hit time when the fly is hit
+                self.hit_time = (
+                    pygame.time.get_ticks() 
+                    ) # Set the hit time when the fly is hit
             elif pygame.time.get_ticks() - self.hit_time > 1000:
                 self.is_hit = False  # Set is_hit back to False after 1 second
                 self.hit_time = None  # Reset the hit time
             return
 
-       
-        
     def move_towards_player(self):
         # Make the fly move towards the player if the player is within 400 pixels
         if self.is_hit:
             return  
 
-        player_pos = pygame.math.Vector2(self.game.player.rect.x, self.game.player.rect.y)
+        player_pos = pygame.math.Vector2(
+            self.game.player.rect.x, self.game.player.rect.y
+            )
         fly_pos = pygame.math.Vector2(self.rect.x, self.rect.y)
         distance = player_pos.distance_to(fly_pos)
 

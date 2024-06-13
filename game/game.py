@@ -56,8 +56,6 @@ def draw_player_health(surf, x, y, pct):
     pygame.draw.rect(surf, col, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
-
-
 def text_box(self, text):
     padding = 20  # Space from the sides and the bottom
     text_padding = 10  # Space from the text to the text box
@@ -138,8 +136,8 @@ class Game:
         self.has_taco = False
         self.has_all_items = False
         self.draw_sword = False
-
-
+        self.end_time = 0
+        self.start_screen_time = 0
     def load_data(self):
         # Load all game data. This method is called when the game is started.
         try:
@@ -348,9 +346,11 @@ class Game:
         if self.inventory.get_item("Taco"):
             self.has_taco = True
 
-        if self.inventory.get_item("Hazmat Suit") and self.inventory.get_item("Gas Mask") and self.inventory.get_item("Flour"):
+        if self.inventory.get_item("HazmatSuit") and self.inventory.get_item("GasMask") and self.inventory.get_item("Flour"):
             self.has_all_items = True
 
+
+            
     def fade_out(self):
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
         fade_surface.fill((0, 0, 0))  # Fill with black color
@@ -464,10 +464,10 @@ class Game:
                 self.inventory.remove_item(Item("Gas Mask", None, 1))
                 self.inventory.remove_item(Item("Flour", None, 1))
 
-            elif self.text_box_state_walter == 'closed':
+            elif self.text_box_state_walter == 'closed' and not self.has_all_items:
                 self.walter.draw_text_box("Hello, I'm Walter White. I'm a high school chemistry teacher. I have cancer and I need to make money for my family. I'm going to start cooking and i need your help")
                 self.talk_counter_walter += 1
-            elif self.text_box_state_walter == 'first':
+            elif self.text_box_state_walter == 'first' and not self.has_all_items:
                 self.talked_to_walter = True
                 self.walter.draw_text_box("I need you to help me gather supplies. I need a gas mask, a hazmat suit, and some flour. Arthur might have a hazmat suit. You can find the flour and gasmask at the local market.")
                 
@@ -621,6 +621,7 @@ class Game:
                                 pygame.display.update()  # Update the display
                                 pygame.time.delay(50)  # Delay for a while
                                 pygame.event.clear()
+                            self.start_screen_time = pygame.time.get_ticks()
                             running = False
                         elif options[selected_option] == "Options":
                             select_sound.set_volume(VOLUME )
@@ -649,7 +650,9 @@ class Game:
                             self.screen.blit(fade_surface, (0, 0))  # Draw the surface on the screen
                             pygame.display.update()  # Update the display
                             pygame.time.delay(50)  # Delay for a while
-                            pygame.event.clear() 
+                            pygame.event.clear()
+                        
+                        self.start_screen_time = pygame.time.get_ticks()
                         running = False
                     elif rect_options.collidepoint(mouse_pos):
                         select_sound.set_volume(VOLUME )
@@ -1002,8 +1005,56 @@ class Game:
                         running = False
 
     def show_game_over_screen(self):
-        pass
+        self.end_time = pygame.time.get_ticks()
+        running = True
+        # Load the font
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)
 
+        # Create the text
+        text1 = "You completed the Game!"
+        text1_surface = font.render(text1, True, (255, 255, 255))  # White color
+        text2 = "It took " + str((self.end_time - self.start_screen_time) // 1000) + " seconds!"
+        text2_surface = font.render(text2, True, (255, 255, 255))  # White color
+        text3 = "Press ESC to return"
+        text3_surface = font.render(text3, True, (255, 255, 255))  # White color
+        text4 = " to the main menu."
+        text4_surface = font.render(text4, True, (255, 255, 255))  # White color
+        # Initial position of the text (above the screen)
+        text_y = -text1_surface.get_height()
+
+        # Target position of the text (center of the screen)
+        target_y = (HEIGHT - text1_surface.get_height()) // 2.7
+        scoreboard = open("e:\\PythonProjects\\Python-Game-2D\\assets\\scoreboard.txt", "a")
+        scoreboard.write(f"{(self.end_time - self.start_screen_time) // 1000}\n") 
+        screen_copy = self.screen.copy()
+        while running:
+            # Blit the copy of the screen onto the screen
+            self.screen.blit(screen_copy, (0, 0))
+
+            # Move the text a little bit towards the target position
+            if text_y < target_y:
+                text_y += 1
+
+            # Draw the text
+            self.screen.blit(text1_surface, ((WIDTH - text1_surface.get_width()) // 2, text_y))
+            self.screen.blit(text2_surface, ((WIDTH - text2_surface.get_width()) // 2, text_y + text1_surface.get_height() + 20))
+            self.screen.blit(text3_surface, ((WIDTH - text3_surface.get_width()) // 2, text_y + text1_surface.get_height() + text2_surface.get_height() + 70))
+            self.screen.blit(text4_surface, ((WIDTH - text4_surface.get_width()) // 2, text_y + text1_surface.get_height() + text2_surface.get_height() + text3_surface.get_height() + 90))
+            # Update the display
+            pygame.display.update()
+
+            # Delay for a while
+            pygame.time.delay(10)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    self.quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+                        self.new()
+                        self.show_start_screen()
+    
     def events(self):
          # This method handles events.
         # It could handle input from the player, respond to game events, etc.
@@ -1025,7 +1076,7 @@ class Game:
                             self.text_box_state_arthur_bf_walter = 'first'
                     #talking to walter
                     if self.near_walter:
-                        print(self.talk_counter_walter)
+                        print(self.has_all_items)
                         if self.text_box_state_walter == 'closed':
                             self.talking_walter = True
                             self.walter.counters = []
@@ -1055,6 +1106,10 @@ class Game:
                     if self.player.equipped_sword:
                         self.player.swinging_sword = True
                         print("pressed space")
+                if event.key == pygame.K_g:
+                    print("Showing game over screen")
+                    self.show_game_over_screen()
+
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     print("Mouse button up: ", event.pos)
