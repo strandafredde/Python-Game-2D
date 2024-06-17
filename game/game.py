@@ -138,6 +138,10 @@ class Game:
         self.draw_sword = False
         self.end_time = 0
         self.start_screen_time = 0
+        self.completed_game = False
+        self.is_fading = False
+        self.is_paused = False
+        self.paused_time = 0
     def load_data(self):
         # Load all game data. This method is called when the game is started.
         try:
@@ -246,7 +250,7 @@ class Game:
 
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
-
+        
 
 
 
@@ -349,8 +353,17 @@ class Game:
         if self.inventory.get_item("HazmatSuit") and self.inventory.get_item("GasMask") and self.inventory.get_item("Flour"):
             self.has_all_items = True
 
-
-            
+        if self.player.health <= 0:
+            self.show_death_screen()
+        if self.is_fading:
+            if self.start_screen_time + 10 < pygame.time.get_ticks():
+                print("should be able to move")
+                self.is_fading = False
+        
+        if self.is_paused:
+            if self.paused_time + 10 < pygame.time.get_ticks():
+                print("should be able to move")
+                self.is_paused = False
     def fade_out(self):
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
         fade_surface.fill((0, 0, 0))  # Fill with black color
@@ -463,6 +476,7 @@ class Game:
                 self.inventory.remove_item(Item("Hazmat Suit", None, 1))
                 self.inventory.remove_item(Item("Gas Mask", None, 1))
                 self.inventory.remove_item(Item("Flour", None, 1))
+                self.completed_game = True
 
             elif self.text_box_state_walter == 'closed' and not self.has_all_items:
                 self.walter.draw_text_box("Hello, I'm Walter White. I'm a high school chemistry teacher. I have cancer and I need to make money for my family. I'm going to start cooking and i need your help")
@@ -546,7 +560,7 @@ class Game:
         start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
-        options = ["Start Game", "Options", "Controls", "Quit"]
+        options = ["Start Game", "Options", "Controls", "Scoreboard", "Quit"]
         selected_option = 0
 
         font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
@@ -578,6 +592,8 @@ class Game:
                         self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
                     if option == "Controls":
                         self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
+                    if option == "Scoreboard":
+                        self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
                     if option == "Quit":
                         self.draw_text(">", self.screen, [x - text_width//2 - 20, y], 30, LIGHTBLUE, "center")
 
@@ -585,57 +601,66 @@ class Game:
             rect_start = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 20, 300, 32)
             rect_options = pygame.Rect(WIDTH // 2 - 110, HEIGHT // 2 + 30, 220, 32)
             rect_controls = pygame.Rect(WIDTH // 2 - 120, HEIGHT // 2 + 80, 240, 32)
-            rect_quit = pygame.Rect(WIDTH // 2 - 60, HEIGHT // 2 + 130, 110, 32)
+            rect_scoreboard = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 + 130, 290, 32)
+            rect_quit = pygame.Rect(WIDTH // 2 - 60, HEIGHT // 2 + 180, 110, 32)
 
             # pygame.draw.rect(self.screen, BLACK, rect_start, 2)
             # pygame.draw.rect(self.screen, BLACK, rect_options, 2)
             # pygame.draw.rect(self.screen, BLACK, rect_controls, 2)
+            # pygame.draw.rect(self.screen, BLACK, rect_scoreboard, 2)
             # pygame.draw.rect(self.screen, BLACK, rect_quit, 2)
 
-
             pygame.display.update()  # Update the display
-
+            if self.is_fading:
+                    return # If the game is fading, don't handle any events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
-                        scroll_sound.set_volume(VOLUME )
-                        scroll_sound.play(loops=0)
-                        selected_option = (selected_option - 1) % len(options)
-                    elif event.key == pygame.K_DOWN:
-                        scroll_sound.set_volume(VOLUME )
-                        scroll_sound.play(loops=0)
-                        selected_option = (selected_option + 1) % len(options)
-                    elif event.key == pygame.K_RETURN:
-                        if options[selected_option] == "Start Game":
-                            select_sound.set_volume(VOLUME )
-                            select_sound.play(loops=0)
-                            # Fade-in effect
-                            self.background_music.stop()
-                            fade_surface = pygame.Surface((WIDTH, HEIGHT))  # Create a new surface
-                            fade_surface.fill((0, 0, 0))  # Fill the surface with black color
-                            for alpha in range(0, 255, 5):  # Increase the alpha value gradually
-                                fade_surface.set_alpha(alpha)  # Set the alpha value of the surface
-                                self.screen.blit(fade_surface, (0, 0))  # Draw the surface on the screen
-                                pygame.display.update()  # Update the display
-                                pygame.time.delay(50)  # Delay for a while
-                                pygame.event.clear()
-                            self.start_screen_time = pygame.time.get_ticks()
-                            running = False
-                        elif options[selected_option] == "Options":
-                            select_sound.set_volume(VOLUME )
-                            select_sound.play(loops=0)
-                            self.show_options_screen()
-                        elif options[selected_option] == "Controls":
-                            select_sound.set_volume(VOLUME )
-                            select_sound.play(loops=0)
-                            self.show_controls_screen()
-                        elif options[selected_option] == "Quit":
-                            select_sound.set_volume(VOLUME )
-                            select_sound.play(loops=0)
-                            pygame.quit()
-                            sys.exit()
+                    if not self.is_fading:
+                        if event.key == pygame.K_UP:
+                            scroll_sound.set_volume(VOLUME )
+                            scroll_sound.play(loops=0)
+                            selected_option = (selected_option - 1) % len(options)
+                        elif event.key == pygame.K_DOWN:
+                            scroll_sound.set_volume(VOLUME )
+                            scroll_sound.play(loops=0)
+                            selected_option = (selected_option + 1) % len(options)
+                        elif event.key == pygame.K_RETURN:
+                            if options[selected_option] == "Start Game":
+                                select_sound.set_volume(VOLUME )
+                                select_sound.play(loops=0)
+                                # Fade-in effect
+                                self.background_music.stop()
+                                self.is_fading = True 
+                                fade_surface = pygame.Surface((WIDTH, HEIGHT))  # Create a new surface
+                                fade_surface.fill((0, 0, 0))  # Fill the surface with black color
+                                for alpha in range(0, 255, 5):  # Increase the alpha value gradually
+                                    fade_surface.set_alpha(alpha)  # Set the alpha value of the surface
+                                    self.screen.blit(fade_surface, (0, 0))  # Draw the surface on the screen
+                                    pygame.display.update()  # Update the display
+                                    pygame.time.delay(50)  # Delay for a while
+                                self.start_screen_time = pygame.time.get_ticks()
+                                running = False
+                            elif options[selected_option] == "Options":
+                                select_sound.set_volume(VOLUME )
+                                select_sound.play(loops=0)
+                                self.show_options_screen()
+                            elif options[selected_option] == "Controls":
+                                select_sound.set_volume(VOLUME )
+                                select_sound.play(loops=0)
+                                self.show_controls_screen()
+                            
+                            elif options[selected_option] == "Scoreboard":
+                                select_sound.set_volume(VOLUME )
+                                select_sound.play(loops=0)
+                                self.show_scoreboard_screen()
+
+                            elif options[selected_option] == "Quit":
+                                select_sound.set_volume(VOLUME )
+                                select_sound.play(loops=0)
+                                pygame.quit()
+                                sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     if rect_start.collidepoint(mouse_pos):
@@ -643,15 +668,14 @@ class Game:
                         select_sound.play(loops=0)
                         # Fade-in effect
                         self.background_music.stop()
+                        self.is_fading = True 
                         fade_surface = pygame.Surface((WIDTH, HEIGHT))  # Create a new surface
                         fade_surface.fill((0, 0, 0))  # Fill the surface with black color
                         for alpha in range(0, 255, 5):  # Increase the alpha value gradually
                             fade_surface.set_alpha(alpha)  # Set the alpha value of the surface
                             self.screen.blit(fade_surface, (0, 0))  # Draw the surface on the screen
                             pygame.display.update()  # Update the display
-                            pygame.time.delay(50)  # Delay for a while
-                            pygame.event.clear()
-                        
+                            pygame.time.delay(50)  # Delay for a while         
                         self.start_screen_time = pygame.time.get_ticks()
                         running = False
                     elif rect_options.collidepoint(mouse_pos):
@@ -662,6 +686,10 @@ class Game:
                         select_sound.set_volume(VOLUME )
                         select_sound.play(loops=0)
                         self.show_controls_screen()
+                    elif rect_scoreboard.collidepoint(mouse_pos):
+                        select_sound.set_volume(VOLUME )
+                        select_sound.play(loops=0)
+                        self.show_scoreboard_screen()
                     elif rect_quit.collidepoint(mouse_pos):
                         select_sound.set_volume(VOLUME )
                         select_sound.play(loops=0)
@@ -816,6 +844,51 @@ class Game:
                             select_sound.play(loops=0)
                             running = False
     
+    def show_scoreboard_screen(self):
+            scores = []
+            running = True
+            font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)
+            select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
+            with open("e:\\PythonProjects\\Python-Game-2D\\assets\\scoreboard.txt", "r") as scoreboard:
+                scores = [int(line.strip()) for line in scoreboard.readlines()]  # Parse scores into a list of integers
+            scores.sort()
+            start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+            self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
+
+            while running:
+                self.screen.blit(self.start_img, (0, 0))  # Draw the start screen image
+
+                self.draw_text("Scoreboard", self.screen, [WIDTH // 2, HEIGHT // 4], 50, LIGHTBLUE, "center")
+                self.draw_text(">", self.screen, [15, 15], 25, LIGHTBLUE, "nw")
+                self.draw_text("Back", self.screen, [45, 15], 25, LIGHTBLUE, "nw")
+
+                rect_back = pygame.Rect(45, 12, 100, 30)
+                # Display each score
+                for i, score in enumerate(scores):
+                    if i < 5:
+                        x = WIDTH // 2
+                        y = HEIGHT // 2 + i * 50
+                        self.draw_text((str(i+1) + ": "), self.screen, [x - 100, y], 30, LIGHTBLUE, "center")
+                        self.draw_text(str(score), self.screen, [x, y], 30, LIGHTBLUE, "w")
+                    else:
+                        break               
+                pygame.display.update()  # Update the display
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                        self.quit()
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:
+                            select_sound.set_volume(VOLUME )
+                            select_sound.play(loops=0)
+                            running = False
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        if rect_back.collidepoint(mouse_pos):  # Back button
+                            select_sound.set_volume(VOLUME )
+                            select_sound.play(loops=0)
+                            running = False
+    
     def show_pause_screen(self):
 
         font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
@@ -830,7 +903,7 @@ class Game:
         selected_option = 0
         running = True
         while running:
-
+            self.is_paused = True
             self.screen.blit(pause_img, (WIDTH // 2 - pause_img.get_width() // 2, HEIGHT // 2 - pause_img.get_height() // 2))
 
             self.draw_text("Paused", self.screen, [x, y1 + 40], 40, DARKGREY, "center")
@@ -884,6 +957,7 @@ class Game:
                         select_sound.set_volume(VOLUME )
                         select_sound.play(loops=0)
                         if options[selected_option] == "Resume":
+                            self.paused_time = pygame.time.get_ticks()
                             running = False
                         if options[selected_option] == "Options":
                             self.show_pause_options_screen()
@@ -894,6 +968,7 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     if rect_resume.collidepoint(mouse_pos):
+                        self.paused_time = pygame.time.get_ticks()
                         running = False
                     if rect_options.collidepoint(mouse_pos):
                         self.show_pause_options_screen()
@@ -1055,13 +1130,35 @@ class Game:
                         self.new()
                         self.show_start_screen()
     
+    def show_death_screen(self):
+        running = True
+        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)
+        screen_copy = self.screen.copy()
+        while running:
+            self.screen.blit(screen_copy, (0, 0))
+            self.draw_text("You died!", self.screen, [WIDTH // 2, HEIGHT // 2], 50, LIGHTBLUE, "center")
+            self.draw_text("Press Any Button to return", self.screen, [WIDTH // 2, HEIGHT // 2 + 50], 30, LIGHTBLUE, "center")
+            self.draw_text("to the main menu.", self.screen, [WIDTH // 2, HEIGHT // 2 + 90], 30, LIGHTBLUE, "center")
+            pygame.display.update()
+            pygame.time.delay(2000)
+            for events in pygame.event.get():
+                if events.type == pygame.QUIT:
+                    running = False
+                    self.quit()
+                if events.type == pygame.KEYDOWN:
+                    running = False
+                    self.new()
+                    self.show_start_screen()
+
     def events(self):
          # This method handles events.
         # It could handle input from the player, respond to game events, etc.
+        if self.is_fading:
+             return # If the game is fading, don't handle any events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.show_pause_screen()
                 if event.key == pygame.K_h:
@@ -1077,7 +1174,10 @@ class Game:
                     #talking to walter
                     if self.near_walter:
                         print(self.has_all_items)
-                        if self.text_box_state_walter == 'closed':
+                        if self.completed_game:
+                            self.show_game_over_screen()
+                        
+                        elif self.text_box_state_walter == 'closed':
                             self.talking_walter = True
                             self.walter.counters = []
                             if self.talk_counter_walter >= 1:
@@ -1110,10 +1210,11 @@ class Game:
                     print("Showing game over screen")
                     self.show_game_over_screen()
 
-            if event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     print("Mouse button up: ", event.pos)
                     self.merchant.check_button_click(event.pos)
+                    
 
 
 

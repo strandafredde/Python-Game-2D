@@ -86,7 +86,7 @@ class Fly(pygame.sprite.Sprite):
             if now - self.last_hit_time > 1000:
                 self.hurt.set_volume(0.1)
                 self.hurt.play()
-                self.game.player.health -= 10
+                self.game.player.health -= 20
                 print(self.game.player.health)
                 self.last_hit_time = now
         if self.is_hit:

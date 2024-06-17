@@ -677,10 +677,7 @@
   <object id="675" name="border" x="8356.88" y="2050.92" width="22" height="16.4167"/>
   <object id="678" name="border" x="8572.83" y="2019.42" width="15" height="7.6667"/>
   <object id="679" name="walter" x="8366.25" y="581.25" width="4.5" height="3"/>
-  <object id="680" name="border" x="8352.3" y="566.833" width="18.909" height="5.8333"/>
-  <object id="681" name="pizza" x="2411.33" y="1815.33"/>
-  <object id="682" name="pizza" x="2516.67" y="1772.67"/>
-  <object id="683" name="pizza" x="2491.33" y="1872"/>
+  <object id="680" name="border" x="8352.3" y="543.333" width="24.659" height="29.3333"/>
   <object id="684" name="border" x="808.458" y="710.292" width="76.4167" height="7.41667"/>
   <object id="685" name="border" x="811.458" y="645.958" width="76.4167" height="7.41667"/>
   <object id="686" name="border" x="877.125" y="677.958" width="76.4167" height="7.41667"/>
@@ -713,7 +710,7 @@
   <object id="713" name="border" x="5474" y="-2" width="506" height="3196"/>
   <object id="714" name="border" x="327" y="647" width="18.3333" height="244"/>
   <object id="715" name="border" x="295" y="708.667" width="21.3333" height="116.333"/>
-  <object id="716" name="border" x="-0.875" y="3206.38" width="9581.75"/>
+  <object id="716" name="border" x="0.0340909" y="3197.83" width="9580.84" height="8.54545"/>
   <object id="717" name="border" x="7.03409" y="0.272727" width="8181.75"/>
   <object id="718" name="border" x="-3.20833" y="-4.26326e-14" width="4.41667" height="3202.33"/>
   <object id="719" name="sword" x="8404.33" y="1406.67"/>

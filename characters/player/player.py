@@ -63,6 +63,8 @@ class Player(pygame.sprite.Sprite):
 
         self.hit_hurt_fly = pygame.mixer.Sound("assets/sounds/hit_hurt_fly.wav")   
 
+        self.coin_image = pygame.image.load("assets/items/coin.png").convert_alpha()
+        self.coin_image = pygame.transform.scale(self.coin_image, (self.coin_image.get_width() // 10, self.coin_image.get_height() // 10))
         print("Player assets loaded")
         print(self.walk_left_sword)
         print(len(self.walk_left_sword))
@@ -74,8 +76,9 @@ class Player(pygame.sprite.Sprite):
         
     def draw_money(self):
         font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 20)
-        money_text = font.render(f"Money: {self.game.player.money}", True, LIGHTBLUE)
-        self.game.screen.blit(money_text, (10, 50))
+        self.game.screen.blit(self.coin_image, (10, 44))
+        money_text = font.render(f"{self.game.player.money}", True, WHITE)
+        self.game.screen.blit(money_text, (50, 50))
         
     def swing_sword(self):
     # Create a new hit rectangle for the sword
@@ -123,15 +126,16 @@ class Player(pygame.sprite.Sprite):
 
             keys = pygame.key.get_pressed()
             vx, vy = 0, 0
-
-            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-                vx = -self.vel * self.game.dt
-            elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-                vx = self.vel * self.game.dt
-            elif keys[pygame.K_UP] or keys[pygame.K_w]:
-                vy = -self.vel * self.game.dt
-            elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-                vy = self.vel * self.game.dt
+            if not self.game.is_fading:
+                if not self.game.is_paused:
+                    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                        vx = -self.vel * self.game.dt
+                    elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                        vx = self.vel * self.game.dt
+                    elif keys[pygame.K_UP] or keys[pygame.K_w]:
+                        vy = -self.vel * self.game.dt
+                    elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                        vy = self.vel * self.game.dt
 
             if keys[pygame.K_LSHIFT]:
                 self.vel = PLAYER_SPEED * 2
@@ -168,10 +172,7 @@ class Player(pygame.sprite.Sprite):
                 self.direction = "down"
                     
     def update(self):
-
-
         if not self.game.fade_active:
-
             self.move()
             self.idle_counter += 1
 
