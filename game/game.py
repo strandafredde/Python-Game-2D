@@ -444,8 +444,8 @@ class Game:
         if self.talking_arthur and self.player.direction == "up":
             if self.talked_to_walter == False:
                 if self.text_box_state_arthur_bf_walter == 'closed':
-                    print("Arthur: Hello, I'm Arthur")
                     self.arthur.draw_text_box("Hey there Mister I'm Arthur!")
+
                     self.talk_counter_arthur_bf_walter += 1
                 elif self.text_box_state_arthur_bf_walter == 'first':
                     self.arthur.draw_text_box("Have you met Walter? He lives in the RV down by the river.")
@@ -505,9 +505,11 @@ class Game:
 
         if not self.talking_arthur:
             self.arthur.counters = []
+            self.arthur.play_sound = False
 
         if not self.talking_walter:
             self.walter.counters = []
+            self.walter.play_sound = False
 
         if not self.talking_merchant:
             self.merchant.counters = []
@@ -1166,17 +1168,25 @@ class Game:
                 if event.key == pygame.K_x:
                     #talking to arthur
                     if self.near_arthur:
-                        self.talking_arthur = not self.talking_arthur
-                        if self.talk_counter_arthur >= 1:
-                            self.text_box_state_arthur = 'first'
-                        if self.talk_counter_arthur_bf_walter >= 1:
-                            self.text_box_state_arthur_bf_walter = 'first'
+                        print("bf walter " + self.text_box_state_arthur_bf_walter)
+                        print("arthur " + self.text_box_state_arthur)
+                        if self.text_box_state_arthur == 'closed' and self.text_box_state_arthur_bf_walter == 'closed':
+                            self.talking_arthur = True
+                            self.arthur.counters = []
+                            if self.talk_counter_arthur >= 1:
+                                self.text_box_state_arthur = 'first'
+                            if self.talk_counter_arthur_bf_walter >= 1:
+                                self.text_box_state_arthur_bf_walter = 'first'
+                        elif self.text_box_state_arthur_bf_walter == 'first':
+                            self.talking_arthur = not self.talking_arthur
+                            self.arthur.talk_sound.stop()
+                        elif self.text_box_state_arthur == 'first':
+                            self.talking_arthur = not self.talking_arthur
+                            self.arthur.talk_sound.stop()
                     #talking to walter
                     if self.near_walter:
-                        print(self.has_all_items)
                         if self.completed_game:
                             self.show_game_over_screen()
-                        
                         elif self.text_box_state_walter == 'closed':
                             self.talking_walter = True
                             self.walter.counters = []
@@ -1184,7 +1194,7 @@ class Game:
                                 self.text_box_state_walter = 'first'
                         elif self.text_box_state_walter == 'first':
                             self.talking_walter = not self.talking_walter
-                            
+                            self.walter.talk_sound.stop()
                     #talking to merchant
                     if self.near_merchant:
                         if self.text_box_state_merchant == 'closed':
@@ -1198,10 +1208,58 @@ class Game:
                             self.talk_counter_merchant = 0
 
                 if event.key == pygame.K_1:
-                    if self.inventory.get_item("Sword") and self.player.has_sword:
+                    if self.inventory.get_item("Sword") == self.inventory.items[0]:
                         self.player.equipped_sword = not self.player.equipped_sword
                         print("sword: ", self.player.equipped_sword)
-                
+                    if self.inventory.get_item("HpPotion") == self.inventory.items[0]:
+                        self.player.use_potion()
+                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                if event.key == pygame.K_2:
+                    if self.inventory.get_item("Sword") == self.inventory.items[1]:
+                        self.player.equipped_sword = not self.player.equipped_sword
+                        print("sword: ", self.player.equipped_sword)     
+                    if self.inventory.get_item("HpPotion") == self.inventory.items[1]:
+                        self.player.use_potion()
+                        self.inventory.remove_item(Item("HpPotion", None, 1))
+
+                if event.key == pygame.K_3:
+                    if self.inventory.get_item("Sword") == self.inventory.items[2]:
+                        self.player.equipped_sword = not self.player.equipped_sword
+                        print("sword: ", self.player.equipped_sword)
+                    if self.inventory.get_item("HpPotion") == self.inventory.items[2]:
+                        self.player.use_potion()
+                        self.inventory.remove_item(Item("HpPotion", None, 1))
+
+                if event.key == pygame.K_4:
+                    if self.inventory.get_item("Sword") == self.inventory.items[3]:
+                        self.player.equipped_sword = not self.player.equipped_sword
+                        print("sword: ", self.player.equipped_sword)
+                    if self.inventory.get_item("HpPotion") == self.inventory.items[3]:
+                        self.player.use_potion()
+                        self.inventory.remove_item(Item("HpPotion", None, 1))
+
+                if event.key == pygame.K_5:
+                    if self.inventory.get_item("Sword") == self.inventory.items[4]:
+                        self.player.equipped_sword = not self.player.equipped_sword
+                        print("sword: ", self.player.equipped_sword)
+                    if self.inventory.get_item("HpPotion") == self.inventory.items[4]:
+                        self.player.use_potion()
+                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                if event.key == pygame.K_6:
+                    if self.inventory.get_item("Sword") == self.inventory.items[5]:
+                        self.player.equipped_sword = not self.player.equipped_sword
+                        print("sword: ", self.player.equipped_sword)
+                    if self.inventory.get_item("HpPotion") == self.inventory.items[5]:
+                        self.player.use_potion()
+                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                if event.key == pygame.K_7:
+                    if self.inventory.get_item("Sword") == self.inventory.items[6]:
+                        self.player.equipped_sword = not self.player.equipped_sword
+                        print("sword: ", self.player.equipped_sword)
+                    if self.inventory.get_item("HpPotion") == self.inventory.items[6]:
+                        self.player.use_potion()
+                        self.inventory.remove_item(Item("HpPotion", None, 1))
+
                 if event.key == pygame.K_SPACE:
                     if self.player.equipped_sword:
                         self.player.swinging_sword = True

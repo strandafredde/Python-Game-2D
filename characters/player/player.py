@@ -118,7 +118,14 @@ class Player(pygame.sprite.Sprite):
                     self.y = hits[0].rect.bottom + self.hit_rect.height 
                 self.vy = 0
                 self.rect.bottom = self.y
-
+    def use_potion(self):
+        if self.game.player.health < 100:
+            self.game.player.health += 20
+            if self.game.player.health > 100:
+                self.game.player.health = 100
+            print("Used potion")
+        else:
+            print("Health is full")
     def move(self):
         if self.swinging_sword:
             return

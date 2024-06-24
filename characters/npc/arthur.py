@@ -38,7 +38,7 @@ class Arthur(pygame.sprite.Sprite):
         )
         timer = pygame.time.Clock()
         snip = font.render("", True, DARKGREY)
-        speed = 3
+        speed = 2
         done = False
         text_box = pygame.image.load(
             "e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\text_box.png"

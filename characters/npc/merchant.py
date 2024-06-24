@@ -43,11 +43,9 @@ class Merchant(pygame.sprite.Sprite):
         text_padding = 10  # Space from the text to the text box
         line_spacing = 5  # Space between lines
         font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 13)
-        timer = pygame.time.Clock()
         snip = font.render('', True, DARKGREY)
         
-        speed = 3
-        done = False
+        speed = 2
         text_box = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\text_box.png")
 
         # Adjust the width of the text box to be 3/5 of the screen width
@@ -214,3 +212,8 @@ class Merchant(pygame.sprite.Sprite):
             self.select_sound.play()
             self.game.talking_merchant = False
             print("Close button clicked")
+            self.taco_button_rect = None
+            self.flour_button_rect = None
+            self.gas_mask_button_rect = None
+            self.hp_potion_button_rect = None
+            self.close_button_rect = None
