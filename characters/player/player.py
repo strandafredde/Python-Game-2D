@@ -1,4 +1,5 @@
 import pygame
+from game.inventory import Item
 from game.settings import *
 from spritesheet import *
 from game.tilemap import *
@@ -29,7 +30,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_speed = 40
         self.direction = "down"
         self.teleporting = False
-        self.money = 100
+        self.money = 0
         self.has_sword = False
         self.equipped_sword = False
         self.swinging_sword = False
@@ -61,7 +62,8 @@ class Player(pygame.sprite.Sprite):
         self.swing_sword_right = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 3, 1.6)
         self.swing_sword_left = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 1, 1.6)
 
-        self.hit_hurt_fly = pygame.mixer.Sound("assets/sounds/hit_hurt_fly.wav")   
+        self.hit_hurt_fly = pygame.mixer.Sound("assets/sounds/hit_hurt_fly.wav")
+        self.use_potion_sound = pygame.mixer.Sound("assets/sounds/potion_sound.wav")   
 
         self.coin_image = pygame.image.load("assets/items/coin.png").convert_alpha()
         self.coin_image = pygame.transform.scale(self.coin_image, (self.coin_image.get_width() // 10, self.coin_image.get_height() // 10))
@@ -120,6 +122,9 @@ class Player(pygame.sprite.Sprite):
                 self.rect.bottom = self.y
     def use_potion(self):
         if self.game.player.health < 100:
+            self.game.inventory.remove_item(Item("HpPotion", None, 1))
+            self.use_potion_sound.set_volume(VOLUME)
+            self.use_potion_sound.play()
             self.game.player.health += 20
             if self.game.player.health > 100:
                 self.game.player.health = 100
@@ -144,9 +149,9 @@ class Player(pygame.sprite.Sprite):
                     elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
                         vy = self.vel * self.game.dt
 
-            if keys[pygame.K_LSHIFT]:
-                self.vel = PLAYER_SPEED * 2
-                self.frame_speed = 20
+            # if keys[pygame.K_LSHIFT]:
+            #     self.vel = PLAYER_SPEED * 2
+            #     self.frame_speed = 20
             if not keys[pygame.K_LSHIFT]:
                 self.vel = PLAYER_SPEED
                 self.frame_speed = 40

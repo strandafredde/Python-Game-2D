@@ -164,6 +164,11 @@ class Game:
         self.load_data()
         self.inventory = Inventory(self)
 
+        # Reset flags for background music
+        self.play_background_music = False
+        self.play_town_music = False
+
+        
         # Create sprite groups which is used to draw and update sprites
         self.all_sprites = pygame.sprite.Group()
         self.npcs = pygame.sprite.Group()
@@ -332,7 +337,7 @@ class Game:
                 print("sword: ", self.player.equipped_sword)
             
             elif item.name == "Coin":
-                self.player.money += 1
+                self.player.money += random.randint(5, 10)
                 self.coin_pickup.set_volume(VOLUME)
                 self.coin_pickup.play(loops=0)
             
@@ -364,6 +369,7 @@ class Game:
             if self.paused_time + 10 < pygame.time.get_ticks():
                 print("should be able to move")
                 self.is_paused = False
+
     def fade_out(self):
         fade_surface = pygame.Surface((WIDTH, HEIGHT))
         fade_surface.fill((0, 0, 0))  # Fill with black color
@@ -1103,6 +1109,7 @@ class Game:
         target_y = (HEIGHT - text1_surface.get_height()) // 2.7
         scoreboard = open("e:\\PythonProjects\\Python-Game-2D\\assets\\scoreboard.txt", "a")
         scoreboard.write(f"{(self.end_time - self.start_screen_time) // 1000}\n") 
+        scoreboard.close()
         screen_copy = self.screen.copy()
         while running:
             # Blit the copy of the screen onto the screen
@@ -1129,6 +1136,7 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
+                        self.town_music.fadeout(2000)
                         self.new()
                         self.show_start_screen()
     
@@ -1163,8 +1171,8 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.show_pause_screen()
-                if event.key == pygame.K_h:
-                    self.draw_debug = not self.draw_debug
+                # if event.key == pygame.K_h:
+                #     self.draw_debug = not self.draw_debug
                 if event.key == pygame.K_x:
                     #talking to arthur
                     if self.near_arthur:
@@ -1208,65 +1216,68 @@ class Game:
                             self.talk_counter_merchant = 0
 
                 if event.key == pygame.K_1:
-                    if self.inventory.get_item("Sword") == self.inventory.items[0]:
-                        self.player.equipped_sword = not self.player.equipped_sword
-                        print("sword: ", self.player.equipped_sword)
-                    if self.inventory.get_item("HpPotion") == self.inventory.items[0]:
-                        self.player.use_potion()
-                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                    if len(self.inventory.items) >= 1:
+                        if self.inventory.get_item("Sword") == self.inventory.items[0]:
+                            self.player.equipped_sword = not self.player.equipped_sword
+                            print("sword: ", self.player.equipped_sword)
+                        if self.inventory.get_item("HpPotion") == self.inventory.items[0]:
+                            self.player.use_potion()
+                            
                 if event.key == pygame.K_2:
-                    if self.inventory.get_item("Sword") == self.inventory.items[1]:
-                        self.player.equipped_sword = not self.player.equipped_sword
-                        print("sword: ", self.player.equipped_sword)     
-                    if self.inventory.get_item("HpPotion") == self.inventory.items[1]:
-                        self.player.use_potion()
-                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                    if len(self.inventory.items) >= 2:
+                        if self.inventory.get_item("Sword") == self.inventory.items[1]:
+                            self.player.equipped_sword = not self.player.equipped_sword
+                            print("sword: ", self.player.equipped_sword)     
+                        if self.inventory.get_item("HpPotion") == self.inventory.items[1]:
+                            self.player.use_potion()
+                            
 
                 if event.key == pygame.K_3:
-                    if self.inventory.get_item("Sword") == self.inventory.items[2]:
-                        self.player.equipped_sword = not self.player.equipped_sword
-                        print("sword: ", self.player.equipped_sword)
-                    if self.inventory.get_item("HpPotion") == self.inventory.items[2]:
-                        self.player.use_potion()
-                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                    if len(self.inventory.items) >= 3:
+                        if self.inventory.get_item("Sword") == self.inventory.items[2]:
+                            self.player.equipped_sword = not self.player.equipped_sword
+                            print("sword: ", self.player.equipped_sword)
+                        if self.inventory.get_item("HpPotion") == self.inventory.items[2]:
+                            self.player.use_potion()
+                            
 
                 if event.key == pygame.K_4:
-                    if self.inventory.get_item("Sword") == self.inventory.items[3]:
-                        self.player.equipped_sword = not self.player.equipped_sword
-                        print("sword: ", self.player.equipped_sword)
-                    if self.inventory.get_item("HpPotion") == self.inventory.items[3]:
-                        self.player.use_potion()
-                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                    if len(self.inventory.items) >= 4:
+                        if self.inventory.get_item("Sword") == self.inventory.items[3]:
+                            self.player.equipped_sword = not self.player.equipped_sword
+                            print("sword: ", self.player.equipped_sword)
+                        if self.inventory.get_item("HpPotion") == self.inventory.items[3]:
+                            self.player.use_potion()
+                            
 
                 if event.key == pygame.K_5:
-                    if self.inventory.get_item("Sword") == self.inventory.items[4]:
-                        self.player.equipped_sword = not self.player.equipped_sword
-                        print("sword: ", self.player.equipped_sword)
-                    if self.inventory.get_item("HpPotion") == self.inventory.items[4]:
-                        self.player.use_potion()
-                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                    if len(self.inventory.items) >= 5:
+                        if self.inventory.get_item("Sword") == self.inventory.items[4]:
+                            self.player.equipped_sword = not self.player.equipped_sword
+                            print("sword: ", self.player.equipped_sword)
+                        if self.inventory.get_item("HpPotion") == self.inventory.items[4]:
+                            self.player.use_potion()
+                            
                 if event.key == pygame.K_6:
-                    if self.inventory.get_item("Sword") == self.inventory.items[5]:
-                        self.player.equipped_sword = not self.player.equipped_sword
-                        print("sword: ", self.player.equipped_sword)
-                    if self.inventory.get_item("HpPotion") == self.inventory.items[5]:
-                        self.player.use_potion()
-                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                    if len(self.inventory.items) >= 6:
+                        if self.inventory.get_item("Sword") == self.inventory.items[5]:
+                            self.player.equipped_sword = not self.player.equipped_sword
+                            print("sword: ", self.player.equipped_sword)
+                        if self.inventory.get_item("HpPotion") == self.inventory.items[5]:
+                            self.player.use_potion()
                 if event.key == pygame.K_7:
-                    if self.inventory.get_item("Sword") == self.inventory.items[6]:
-                        self.player.equipped_sword = not self.player.equipped_sword
-                        print("sword: ", self.player.equipped_sword)
-                    if self.inventory.get_item("HpPotion") == self.inventory.items[6]:
-                        self.player.use_potion()
-                        self.inventory.remove_item(Item("HpPotion", None, 1))
+                    if len(self.inventory.items) >= 7:
+                        if self.inventory.get_item("Sword") == self.inventory.items[6]:
+                            self.player.equipped_sword = not self.player.equipped_sword
+                            print("sword: ", self.player.equipped_sword)
+                        if self.inventory.get_item("HpPotion") == self.inventory.items[6]:
+                            self.player.use_potion()
+                            
 
                 if event.key == pygame.K_SPACE:
                     if self.player.equipped_sword:
                         self.player.swinging_sword = True
                         print("pressed space")
-                if event.key == pygame.K_g:
-                    print("Showing game over screen")
-                    self.show_game_over_screen()
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:

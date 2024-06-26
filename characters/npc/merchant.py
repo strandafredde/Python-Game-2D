@@ -170,9 +170,9 @@ class Merchant(pygame.sprite.Sprite):
     def check_button_click(self, pos):
         self.buying_sound.set_volume(VOLUME)
         if self.taco_button_rect is not None and self.taco_button_rect.collidepoint(pos):
-            if self.game.player.money >= 5:
+            if self.game.player.money >= 10:
                 self.buying_sound.play()
-                self.game.player.money -= 5
+                self.game.player.money -= 10
                 taco = Taco(self.game)
                 print(taco.name, taco.image)
                 
@@ -189,18 +189,18 @@ class Merchant(pygame.sprite.Sprite):
             print("Money: ", self.game.player.money)
 
         elif self.gas_mask_button_rect is not None and self.gas_mask_button_rect.collidepoint(pos):
-            if self.game.player.money >= 2:
+            if self.game.player.money >= 10:
                 self.buying_sound.play()
-                self.game.player.money -= 2
+                self.game.player.money -= 10
                 gasMask = GasMask(self.game)
                 print(gasMask.name, gasMask.image)
                 self.game.inventory.add_item(Item(gasMask.name, gasMask.image, 1))
             print("Money: ", self.game.player.money)
         
         elif self.hp_potion_button_rect is not None and self.hp_potion_button_rect.collidepoint(pos):
-            if self.game.player.money >= 10:
+            if self.game.player.money >= 2:
                 self.buying_sound.play()
-                self.game.player.money -= 10
+                self.game.player.money -= 2
                 hpPotion = HpPotion(self.game)
                 print(hpPotion.name, hpPotion.image)
                 self.game.inventory.add_item(Item(hpPotion.name, hpPotion.image, 1))
