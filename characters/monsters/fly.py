@@ -1,5 +1,6 @@
 import pygame
 import random
+import config
 from game.items import *
 from spritesheet import *
 from game.settings import *
@@ -32,12 +33,10 @@ class Fly(pygame.sprite.Sprite):
     
     def load_assets(self): 
         try:
-            self.fly_dying = pygame.mixer.Sound(
-                "e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\fly_dying.wav"
-            )
-            self.flying = load_spritesheet("assets/npc/fly.png", 32, 32, 0, 3)
-            self.dying = load_spritesheet("assets/npc/fly.png", 32, 32, 3, 3)
-            self.hurt = pygame.mixer.Sound("assets/sounds/hurt.wav")
+            self.fly_dying = pygame.mixer.Sound(config.FLY_DYING_SOUND)
+            self.flying = load_spritesheet(config.FLY_SPRITESHEET, 32, 32, 0, 3)
+            self.dying = load_spritesheet(config.FLY_SPRITESHEET, 32, 32, 3, 3)
+            self.hurt = pygame.mixer.Sound(config.HURT_SOUND)
             print("Game data loaded successfully")
         except Exception as e:
             print("Cannot load game data: " + str(e))

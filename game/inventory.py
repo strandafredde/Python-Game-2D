@@ -1,5 +1,6 @@
 import pygame
 from game.settings import *
+import config
 class Item:
     def __init__(self, name, image, quantity=1):
         self.name = name
@@ -43,7 +44,7 @@ class Inventory:
 
     def draw_inventory(self, screen):
         for index, i in enumerate(self.items):
-            font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 10)
+            font = pygame.font.Font(config.FONT_PATH, 13)
             text = font.render(f"{i.quantity}", True, (255, 255, 255))
             image = i.image
             image = pygame.transform.scale(image, (48, 48))

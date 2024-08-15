@@ -3,7 +3,7 @@ from game.inventory import Item
 from game.settings import *
 from spritesheet import *
 from game.tilemap import *
-
+import config
 
 
 
@@ -40,47 +40,50 @@ class Player(pygame.sprite.Sprite):
     
 
     def load_assets(self):
-        # #normal
-        self.walk_down = load_spritesheet("assets/player/main_char_default.png", 64, 64, 10, 1.6)
-        self.walk_up = load_spritesheet("assets/player/main_char_default.png", 64, 64, 8, 1.6)
-        self.walk_right = load_spritesheet("assets/player/main_char_default.png", 64, 64, 11, 1.6)
-        self.walk_left = load_spritesheet("assets/player/main_char_default.png", 64, 64, 9, 1.6)
+        # Normal
+        self.walk_down = load_spritesheet(config.MAIN_CHAR_DEFAULT_PATH, 64, 64, 10, 1.6)
+        self.walk_up = load_spritesheet(config.MAIN_CHAR_DEFAULT_PATH, 64, 64, 8, 1.6)
+        self.walk_right = load_spritesheet(config.MAIN_CHAR_DEFAULT_PATH, 64, 64, 11, 1.6)
+        self.walk_left = load_spritesheet(config.MAIN_CHAR_DEFAULT_PATH, 64, 64, 9, 1.6)
 
-        #sword
-        self.walk_down_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 2, 1.6)
-        self.walk_up_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 0, 1.6)
-        self.walk_right_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 3, 1.6,)
-        self.walk_left_sword = load_spritesheet("assets/player/sword/main_character_sword_walk.png", 192, 192, 1, 1.6)
+        # Sword
+        self.walk_down_sword = load_spritesheet(config.SWORD_WALK_PATH, 192, 192, 2, 1.6)
+        self.walk_up_sword = load_spritesheet(config.SWORD_WALK_PATH, 192, 192, 0, 1.6)
+        self.walk_right_sword = load_spritesheet(config.SWORD_WALK_PATH, 192, 192, 3, 1.6)
+        self.walk_left_sword = load_spritesheet(config.SWORD_WALK_PATH, 192, 192, 1, 1.6)
 
-        self.walk_down_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 2, 1.6)
-        self.walk_up_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 0, 1.6)
-        self.walk_right_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 3, 1.6)
-        self.walk_left_sword_idle = load_spritesheet("assets/player/sword/main_character_sword_idle.png", 192, 192, 1, 1.6)
+        self.walk_down_sword_idle = load_spritesheet(config.SWORD_IDLE_PATH, 192, 192, 2, 1.6)
+        self.walk_up_sword_idle = load_spritesheet(config.SWORD_IDLE_PATH, 192, 192, 0, 1.6)
+        self.walk_right_sword_idle = load_spritesheet(config.SWORD_IDLE_PATH, 192, 192, 3, 1.6)
+        self.walk_left_sword_idle = load_spritesheet(config.SWORD_IDLE_PATH, 192, 192, 1, 1.6)
 
-        self.swing_sword_down = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 2, 1.6)
-        self.swing_sword_up = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 0, 1.6)
-        self.swing_sword_right = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 3, 1.6)
-        self.swing_sword_left = load_spritesheet("assets/player/sword/main_character_sword_slash.png", 192, 192, 1, 1.6)
+        self.swing_sword_down = load_spritesheet(config.SWORD_SLASH_PATH, 192, 192, 2, 1.6)
+        self.swing_sword_up = load_spritesheet(config.SWORD_SLASH_PATH, 192, 192, 0, 1.6)
+        self.swing_sword_right = load_spritesheet(config.SWORD_SLASH_PATH, 192, 192, 3, 1.6)
+        self.swing_sword_left = load_spritesheet(config.SWORD_SLASH_PATH, 192, 192, 1, 1.6)
 
-        self.hit_hurt_fly = pygame.mixer.Sound("assets/sounds/hit_hurt_fly.wav")
-        self.use_potion_sound = pygame.mixer.Sound("assets/sounds/potion_sound.wav")   
+        self.hit_hurt_fly = pygame.mixer.Sound(config.HIT_HURT_FLY_PATH)
+        self.use_potion_sound = pygame.mixer.Sound(config.POTION_SOUND_PATH)
 
-        self.coin_image = pygame.image.load("assets/items/coin.png").convert_alpha()
+        self.coin_image = pygame.image.load(config.COIN_IMAGE_PATH).convert_alpha()
         self.coin_image = pygame.transform.scale(self.coin_image, (self.coin_image.get_width() // 10, self.coin_image.get_height() // 10))
+        
         print("Player assets loaded")
         print(self.walk_left_sword)
         print(len(self.walk_left_sword))
         print(len(self.walk_up_sword_idle))
         print(self.walk_up_sword_idle)
 
+
     def draw(self):
         pygame.draw.rect(self.game.screen, (self.x, self.y, self.width, self.height))
         
     def draw_money(self):
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 20)
+        font = pygame.font.Font(config.FONT_PATH, 20)
         self.game.screen.blit(self.coin_image, (10, 44))
         money_text = font.render(f"{self.game.player.money}", True, WHITE)
         self.game.screen.blit(money_text, (50, 50))
+
         
     def swing_sword(self):
     # Create a new hit rectangle for the sword

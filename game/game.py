@@ -2,6 +2,8 @@ from os import path
 import sys
 import pygame
 import time
+import os
+import config
 
 from characters.player.player import *
 from characters.npc.arthur import *
@@ -13,6 +15,7 @@ from .items import *
 from .inventory import *
 from .tilemap import *
 from .settings import *
+current_dir = os.path.dirname(__file__)
 
 #sprite for collision
 class Obstacle(pygame.sprite.Sprite):
@@ -62,7 +65,7 @@ def text_box(self, text):
     line_spacing = 5  # Space between lines
     
     # Load the image for the text box
-    text_box = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\text_box.png")
+    text_box = pygame.image.load(config.TEXT_BOX_PATH)
 
     # Adjust the width of the text box to be 3/5 of the screen width
     text_box_width = int(WIDTH * 3 / 5)
@@ -73,7 +76,7 @@ def text_box(self, text):
     text_box = pygame.transform.scale(text_box, (text_box_width, 100))
 
     # Create a font object
-    font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 13)
+    font = pygame.font.Font(config.FONT_PATH, 13)
 
     # Split the text into words
     words = text.split(' ')
@@ -143,17 +146,15 @@ class Game:
         self.is_paused = False
         self.paused_time = 0
     def load_data(self):
-        # Load all game data. This method is called when the game is started.
         try:
-            self.open_door = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\door_open.wav")
-            self.town_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\town-2.wav")
-            self.sword_swing = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\sword_swing.wav")
-            self.coin_pickup = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\coin_pickup.wav")
-            self.talk_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\talk.wav")
-            self.pick_up = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\pick_up.wav")
-            
-            self.start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\start_screen.png")
-            
+            self.open_door = pygame.mixer.Sound(config.DOOR_OPEN_SOUND)
+            self.town_music = pygame.mixer.Sound(config.TOWN_MUSIC)
+            self.sword_swing = pygame.mixer.Sound(config.SWORD_SWING_SOUND)
+            self.coin_pickup = pygame.mixer.Sound(config.COIN_PICKUP_SOUND)
+            self.talk_sound = pygame.mixer.Sound(config.TALK_SOUND)
+            self.pick_up = pygame.mixer.Sound(config.PICK_UP_SOUND)
+
+            self.start_img = pygame.image.load(config.START_IMG_PATH)
             print("Game data loaded successfully")
         except Exception as e:
             print("Cannot load game data: " + str(e))
@@ -177,10 +178,13 @@ class Game:
         self.doors = pygame.sprite.Group()
         self.items = pygame.sprite.Group()
 
-        map_folder = path.join("e:\\PythonProjects\\Python-Game-2D\\scenes\\base_map")
+
 
         # Load the maps and create the map images
-        self.map = TiledMap(path.join(map_folder, "main_map.tmx"))
+        print(" ====================================== Loading map ======================================")
+        print(config.MAIN_MAP_PATH)
+        self.map = TiledMap(config.MAIN_MAP_PATH)
+        print(" ====================================== Done Loading map ======================================")
         self.map_img = self.map.make_map("base_layer")
         self.map_img2 = self.map.make_map("detail_layer")
         self.map_img3 = self.map.make_map("second_detail_layer")
@@ -526,7 +530,7 @@ class Game:
         pygame.display.flip()  # Update the display
 
     def draw_text(self, text, surface, position, size, color, alignment="nw"):
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", size)  # Use the default font
+        font = pygame.font.Font(config.FONT_PATH, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
 
@@ -565,17 +569,17 @@ class Game:
     def show_start_screen(self):
         # This method displays the start screen of the game.
         
-        start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+        start_img = pygame.image.load(config.START_IMG_PATH)
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
         options = ["Start Game", "Options", "Controls", "Scoreboard", "Quit"]
         selected_option = 0
 
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
+        font = pygame.font.Font(config.FONT_PATH, 30)  # Create a Font object
 
-        scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
-        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
-        self.background_music = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\start_screen_music.wav")
+        scroll_sound = pygame.mixer.Sound(config.SCROLL_SOUND)
+        select_sound = pygame.mixer.Sound(config.SELECT_SOUND)
+        self.background_music = pygame.mixer.Sound(config.START_SCREEN_MUSIC)
         running = True
         while running:
             if not self.play_background_music:
@@ -705,14 +709,14 @@ class Game:
                         sys.exit()
 
     def show_controls_screen(self):
-        start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+        start_img = pygame.image.load(config.START_IMG_PATH)
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
-        self.controls_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\controls_screen.png")
+        self.controls_img = pygame.image.load(config.CONTROLS_IMG_PATH)
         #self.controls_img = pygame.transform.scale(controls_img, (int(WIDTH/1.2), int(HEIGHT/1.2)))  # Scale the image
 
 
-        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
+        select_sound = pygame.mixer.Sound(config.SELECT_SOUND)
 
         # Calculate the position to draw the controls image
         controls_pos = ((WIDTH - self.controls_img.get_width()) // 2, (HEIGHT - self.controls_img.get_height()) // 2 + 75)
@@ -750,13 +754,13 @@ class Game:
         global VOLUME
         global MUSIC
 
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
+        font = pygame.font.Font(config.FONT_PATH, 30) 
 
-        start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+        start_img = pygame.image.load(config.START_IMG_PATH)
         self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
-        scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
-        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
+        scroll_sound = pygame.mixer.Sound(config.SCROLL_SOUND)
+        select_sound = pygame.mixer.Sound(config.SELECT_SOUND)
 
         x = WIDTH // 2
 
@@ -855,12 +859,12 @@ class Game:
     def show_scoreboard_screen(self):
             scores = []
             running = True
-            font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)
-            select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
-            with open("e:\\PythonProjects\\Python-Game-2D\\assets\\scoreboard.txt", "r") as scoreboard:
+            font = pygame.font.Font(config.FONT_PATH, 30)
+            select_sound = pygame.mixer.Sound(config.SELECT_SOUND)
+            with open(config.SCOREBOARD_FILE_PATH, "r") as scoreboard:
                 scores = [int(line.strip()) for line in scoreboard.readlines()]  # Parse scores into a list of integers
             scores.sort()
-            start_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\scenes\\start_screen2.png")
+            start_img = pygame.image.load(config.START_IMG_PATH)
             self.start_img = pygame.transform.scale(start_img, (WIDTH, HEIGHT))  # Scale the image
 
             while running:
@@ -899,20 +903,20 @@ class Game:
     
     def show_pause_screen(self):
 
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
-        pause_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\pause_screen2.png")
+        font = pygame.font.Font(config.FONT_PATH, 30)  # Create a Font object
+        self.pause_img = pygame.image.load(os.path.join(config.GUI_DIR, 'pause_screen2.png'))
         x = WIDTH // 2
-        y1 = (HEIGHT // 2 - pause_img.get_height() // 2) + 50
-        
-        scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
-        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
+        y1 = (HEIGHT // 2 - self.pause_img.get_height() // 2) + 50
+
+        scroll_sound = pygame.mixer.Sound(config.SCROLL_SOUND)
+        select_sound = pygame.mixer.Sound(config.SELECT_SOUND)
 
         options = ["Resume", "Options", "Controls", "Quit"]
         selected_option = 0
         running = True
         while running:
             self.is_paused = True
-            self.screen.blit(pause_img, (WIDTH // 2 - pause_img.get_width() // 2, HEIGHT // 2 - pause_img.get_height() // 2))
+            self.screen.blit(self.pause_img, (WIDTH // 2 - self.pause_img.get_width() // 2, HEIGHT // 2 - self.pause_img.get_height() // 2))
 
             self.draw_text("Paused", self.screen, [x, y1 + 40], 40, DARKGREY, "center")
   
@@ -989,11 +993,12 @@ class Game:
         global VOLUME
         global MUSIC
         global EFFECTS
-        controls_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\pause_screen2.png")
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)  # Create a Font object
+        controls_img = pygame.image.load(os.path.join(config.GUI_DIR, 'pause_screen2.png'))
         
-        scroll_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\scroll.wav")
-        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
+        font = pygame.font.Font(config.FONT_PATH, 30)  # Create a Font object
+
+        scroll_sound = pygame.mixer.Sound(config.SCROLL_SOUND)
+        select_sound = pygame.mixer.Sound(config.SELECT_SOUND)
 
         x = WIDTH // 2
         y1 = (HEIGHT // 2 - controls_img.get_height() // 2) + 50
@@ -1001,6 +1006,7 @@ class Game:
         running = True
         while running:
             self.town_music.set_volume(MUSIC)
+
             self.screen.blit(controls_img, (WIDTH // 2 - controls_img.get_width() // 2, HEIGHT // 2 - controls_img.get_height() // 2))
             
             self.draw_text("Options", self.screen, [x, y1 + 40], 40, DARKGREY, "center")
@@ -1063,8 +1069,8 @@ class Game:
                             running = False
     
     def show_pause_controls_screen(self):
-        contols_img = pygame.image.load("e:\\PythonProjects\\Python-Game-2D\\assets\\gui\\controls_screen.png")
-        select_sound = pygame.mixer.Sound("e:\\PythonProjects\\Python-Game-2D\\assets\\sounds\\select2.wav")
+        contols_img = pygame.image.load(os.path.join(config.GUI_DIR, 'controls_screen.png'))
+        select_sound = pygame.mixer.Sound(config.SELECT_SOUND)
 
         running =  True
         x = WIDTH // 2
@@ -1091,7 +1097,7 @@ class Game:
         self.end_time = pygame.time.get_ticks()
         running = True
         # Load the font
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)
+        font = pygame.font.Font(config.FONT_PATH, 30)
 
         # Create the text
         text1 = "You completed the Game!"
@@ -1107,9 +1113,8 @@ class Game:
 
         # Target position of the text (center of the screen)
         target_y = (HEIGHT - text1_surface.get_height()) // 2.7
-        scoreboard = open("e:\\PythonProjects\\Python-Game-2D\\assets\\scoreboard.txt", "a")
-        scoreboard.write(f"{(self.end_time - self.start_screen_time) // 1000}\n") 
-        scoreboard.close()
+        with open(config.SCOREBOARD_FILE_PATH, "a") as scoreboard:
+            scoreboard.write(f"{(self.end_time - self.start_screen_time) // 1000}\n")
         screen_copy = self.screen.copy()
         while running:
             # Blit the copy of the screen onto the screen
@@ -1142,7 +1147,7 @@ class Game:
     
     def show_death_screen(self):
         running = True
-        font = pygame.font.Font("e:\\PythonProjects\\Python-Game-2D\\assets\\fonts\\PressStart2P.ttf", 30)
+        font = pygame.font.Font(config.FONT_PATH, 30)
         screen_copy = self.screen.copy()
         while running:
             self.screen.blit(screen_copy, (0, 0))
